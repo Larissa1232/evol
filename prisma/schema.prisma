@@ -35,3 +35,15 @@ model Produtos {
 
   @@map("produtos")
 }
+
+model Transacao {
+  id          Int      @id @default(autoincrement())
+  user_id     String   @db.VarChar(50)
+  valor       Decimal  @db.Decimal(10,2)
+  tipo        String   @db.VarChar(30) // exemplo: 'doacao', 'compra', 'pix', etc
+  status      String   @db.VarChar(20)
+  descricao   String?  @db.VarChar(255)
+  criado_em   DateTime @default(now()) @db.DateTime(0)
+
+  @@map("transacoes")
+}

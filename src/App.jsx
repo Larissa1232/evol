@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import CharactersTable from './components/CharactersTable';
 import ProductsGrid from './components/ProductsGrid';
 import CartSummary from './components/CartSummary';
+import TransactionsHistory from './components/TransactionsHistory';
 
 function App(){
 	const [page, setPage] = React.useState('dashboard');
@@ -52,6 +53,9 @@ function App(){
 								<CartSummary cart={cart} onChangeQuantity={setQuantity} onClear={clearCart} />
 							</>
 						)}
+					{page === 'transacoes' && (
+						<TransactionsHistory />
+					)}
 					</div>
 				</div>
 			</div>

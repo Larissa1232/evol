@@ -73,10 +73,14 @@ export default function ProductsGrid({cart = {}, onChangeQuantity = ()=>{}}){
           return (
             <div key={p.id} className={`product-card ${qty>0? 'selected':''}`}>
               {qty>0 && <div className="product-check">✓</div>}
+              {/* Badge visual no canto superior direito */}
+              <div className="product-badge">{qty > 0 ? `x${qty}` : 'Novo'}</div>
               <div className="product-icon">🏺</div>
               <div className="product-title">{p.title}</div>
-              <div className="product-usdt">USDT {p.usdt.toFixed(2)}</div>
-              <div className="product-brl">R$ {p.brl.toFixed(2)}</div>
+              <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:8}}>
+                <span className="product-usdt" style={{color:'#3b82f6',fontWeight:700}}>USDT {p.usdt.toFixed(2)}</span>
+                <span className="product-brl" style={{color:'#10b981',fontWeight:700}}>R$ {p.brl.toFixed(2)}</span>
+              </div>
               <div className="product-controls">
                 <button className="qty-btn" onClick={()=>dec(p)}>-</button>
                 <input className="qty-input" type="number" min="0" value={qty} onChange={(e)=>onInputChange(p,e)} />

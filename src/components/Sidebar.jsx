@@ -36,7 +36,7 @@ export default function Sidebar({onNavigate = ()=>{}}) {
 
           <ul className={`submenu ${donationOpen ? 'open' : ''}`}>
             <li><button className="submenu-item" onClick={() => onNavigate('donate')}>Fazer uma doação</button></li>
-            <li><a className="submenu-item">Minhas doações</a></li>
+            <li><button className="submenu-item" onClick={() => onNavigate('transacoes')}>Minhas doações</button></li>
           </ul>
         </div>
 

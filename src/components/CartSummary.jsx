@@ -58,7 +58,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         txid={pixTxid}
         description={"Pagamento de produtos"}
       />
-      <h3>Resumo do pedido</h3>
+      <h3 className="cart-summary-title">🛒 Resumo do pedido</h3>
       {items.length === 0 ? (
         <div className="cart-empty">Seu carrinho está vazio.</div>
       ) : (
@@ -66,14 +66,16 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           <div className="cart-items-col">
             <ul className="cart-items">
               {items.map(it=> (
-                  <li key={it.id} className="cart-item">
+                  <li key={it.id} className={`cart-item cart-item-anim`}>
                     <div className="cart-col cart-name">
-                      <div className="cart-item-title">{it.title}</div>
+                      <div className="cart-item-title">
+                        <span className="cart-item-icon" title="Produto">🏺</span>
+                        {it.title}
+                        <span className="cart-badge">x{it.qty}</span>
+                      </div>
                       <div className="cart-item-price"><span className="cs-usdt">USDT {(it.usdt*it.qty).toFixed(2)}</span> • <span className="cs-brl">R$ {(it.brl*it.qty).toFixed(2)}</span></div>
                     </div>
-
                     <div className="cart-col cart-qty-display">{it.qty}</div>
-
                     <div className="cart-col cart-controls">
                       <button className="cart-qty" onClick={()=>onChangeQuantity(it.id, Math.max(0, it.qty-1), it)}>-</button>
                       <button className="cart-qty" onClick={()=>onChangeQuantity(it.id, it.qty+1, it)}>+</button>
@@ -81,30 +83,32 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
                   </li>
                 ))}
             </ul>
+            <div className="cart-items-separator"></div>
           </div>
 
           <div className="cart-right">
             <div className="cart-totals">
-              <div>Subtotal USDT: <strong><span className="cs-usdt">{subtotalUSDT.toFixed(2)}</span></strong></div>
-              <div>Subtotal BRL: <strong><span className="cs-brl">R$ {subtotalBRL.toFixed(2)}</span></strong></div>
+              <div>Subtotal USDT: <strong><span className="cs-usdt" title="Total em USDT">{subtotalUSDT.toFixed(2)}</span></strong></div>
+              <div>Subtotal BRL: <strong><span className="cs-brl" title="Total em reais">R$ {subtotalBRL.toFixed(2)}</span></strong></div>
               {fee > 0 && (
-                <div className={`cart-fee ${method==='paypal' ? 'fee-paypal' : ''}`}>
-                  Taxa ({method.toUpperCase()}): <strong><span className="cs-brl">R$ {fee.toFixed(2)}</span></strong>
-                </div>
+                <div className={`cart-fee ${method==='paypal' ? 'fee-paypal' : ''}`}>Taxa ({method.toUpperCase()}): <strong><span className="cs-brl">R$ {fee.toFixed(2)}</span></strong></div>
               )}
-              <div className="cart-total-main">Total: <strong><span className="cs-brl">R$ {totalBRL.toFixed(2)}</span></strong></div>
+              <div className="cart-total-main" title="Valor final do pedido">Total: <strong><span className="cs-brl">R$ {totalBRL.toFixed(2)}</span></strong></div>
             </div>
 
             <div className="payment-section">
               <div className="payment-methods">
                 <div className={`method-card pix ${method==='pix'? 'method-selected':''}`} onClick={()=>setMethod('pix')}>
                   <div className="method-name">PIX</div>
+                  <span className="method-tooltip">Pagamento instantâneo</span>
                 </div>
                 <div className={`method-card binance ${method==='binance'? 'method-selected':''}`} onClick={()=>setMethod('binance')}>
                   <div className="method-name">Binance</div>
+                  <span className="method-tooltip">Cripto via Binance</span>
                 </div>
                 <div className={`method-card paypal ${method==='paypal'? 'method-selected':''}`} onClick={()=>setMethod('paypal')}>
                   <div className="method-name">PayPal</div>
+                  <span className="method-tooltip">Cartão ou saldo PayPal</span>
                 </div>
               </div>
             </div>

@@ -147,6 +147,17 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+// Endpoint para histórico de transações
+app.get('/api/transacoes', async (req, res) => {
+  try {
+    const transacoes = await prisma.transacao.findMany({ orderBy: { criado_em: 'desc' } });
+    res.json(transacoes);
+  } catch (err) {
+    console.error('Erro ao buscar transações:', err);
+    res.status(500).json({ error: 'Erro ao buscar transações' });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ ok: true, time: new Date().toISOString() });
 });
