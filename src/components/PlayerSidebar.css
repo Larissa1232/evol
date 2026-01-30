@@ -1,0 +1,8 @@
+.profile{display:flex;align-items:center;margin-bottom:18px}
+.avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#6b3bd6,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;margin-right:12px}
+.profile-info .name{font-weight:700}
+.profile-info .tag{font-size:12px;color:var(--muted)}
+.menu{margin-top:8px}
+.menu-section{font-size:12px;color:var(--muted);margin:12px 0}
+.menu-item{display:block;padding:10px 12px;border-radius:8px;color:#cbd5e1;text-decoration:none;margin-bottom:6px}
+.menu-item.active{background:linear-gradient(90deg,#1f2937,#111827);color:#fff}

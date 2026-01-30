@@ -1,0 +1,7 @@
+.header{display:flex;align-items:center;justify-content:space-between}
+.menu-btn{background:transparent;border:1px solid rgba(255,255,255,0.04);color:#fff;padding:8px 10px;border-radius:8px}
+
+.dashboard .card{position:relative}
+.dashboard .card .card-link{opacity:0.85;font-size:12px}
+
+.table-wrap .rows-select{font-size:13px}
