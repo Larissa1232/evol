@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import './PlayerSidebar.css';
 
-export default function Sidebar() {
+export default function Sidebar({onNavigate = ()=>{}}) {
   const [donationOpen, setDonationOpen] = useState(true);
   const [functionsOpen, setFunctionsOpen] = useState(false);
 
@@ -35,7 +35,7 @@ export default function Sidebar() {
           </button>
 
           <ul className={`submenu ${donationOpen ? 'open' : ''}`}>
-            <li><a className="submenu-item">Fazer uma doação</a></li>
+            <li><button className="submenu-item" onClick={() => onNavigate('donate')}>Fazer uma doação</button></li>
             <li><a className="submenu-item">Minhas doações</a></li>
           </ul>
         </div>

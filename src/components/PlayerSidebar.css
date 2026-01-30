@@ -17,7 +17,9 @@
 
 .submenu{max-height:0;overflow:hidden;margin:0;padding-left:12px;padding-top:0;margin-left:8px;border-left:3px solid transparent;opacity:0;transition: max-height 260ms cubic-bezier(.2,.9,.2,1), opacity 180ms ease, padding-top 180ms ease}
 .submenu.open{max-height:280px;border-left-color:rgba(107,59,214,0.9);opacity:1;padding-top:8px;margin-bottom:12px}
-.submenu-item{display:block;padding:8px 10px;border-radius:6px;color:#cbd5e1;text-decoration:none;margin-bottom:6px}
+.submenu-item{display:block;padding:8px 10px;border-radius:6px;color:#cbd5e1;text-decoration:none;margin-bottom:6px;background:transparent;border:0;text-align:left;width:100%;cursor:pointer}
+.submenu-item:hover{background:rgba(255,255,255,0.02);color:#fff}
+.submenu-item:focus{outline:none;box-shadow:0 0 0 3px rgba(107,59,214,0.08)}
 .submenu-item:hover{background:rgba(255,255,255,0.02);color:#fff}
 
 .submenu-section{margin:10px 0 6px;color:rgba(255,255,255,0.55);font-size:11px;font-weight:700;letter-spacing:1px}
