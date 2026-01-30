@@ -1,4 +1,5 @@
 import React from 'react';
+import PixQRCodeModal from './PixQRCodeModal';
 import './PlayerPanel.css';
 
 export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}}){
@@ -9,17 +10,54 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
   const fee = method === 'paypal' ? subtotalBRL * 0.06 : 0; // simulate paypal fee
   const totalBRL = subtotalBRL + fee;
 
-  function pay(){
+  const [showPix, setShowPix] = React.useState(false);
+  const [pixTxid, setPixTxid] = React.useState(null);
+  const [saving, setSaving] = React.useState(false);
+
+  async function pay(){
     if(items.length === 0){
       window.alert('Seu carrinho está vazio.');
       return;
     }
-    // Simulated payment action
+    if(method === 'pix') {
+      setSaving(true);
+      setPixTxid(null);
+      // Salva o carrinho antes de abrir o Pix
+      try {
+        const res = await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: 'usuario-demo',
+            produtos: items,
+            total_usd: subtotalUSDT,
+            total_brl: totalBRL
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        setPixTxid(data.id);
+        setShowPix(true);
+      } catch (err) {
+        window.alert('Erro ao salvar carrinho: ' + (err.message || err));
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
     window.alert(`Simulação de pagamento via ${method.toUpperCase()}\nTotal: R$ ${totalBRL.toFixed(2)}`);
   }
 
   return (
     <div className="cart-summary">
+      <PixQRCodeModal
+        open={showPix}
+        onClose={()=>setShowPix(false)}
+        value={totalBRL}
+        userId={"usuario-demo"}
+        txid={pixTxid}
+        description={"Pagamento de produtos"}
+      />
       <h3>Resumo do pedido</h3>
       {items.length === 0 ? (
         <div className="cart-empty">Seu carrinho está vazio.</div>
@@ -72,7 +110,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
             </div>
 
             <div className="cart-actions">
-              <button className="btn-primary" onClick={pay} disabled={items.length===0}>Pagar</button>
+              <button className="btn-primary" onClick={pay} disabled={items.length===0 || saving}>{saving ? 'Salvando...' : 'Pagar'}</button>
               <button className="btn-ghost" onClick={onClear}>Limpar</button>
             </div>
           </div>
