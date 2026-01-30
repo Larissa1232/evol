@@ -3,6 +3,7 @@ import './PlayerSidebar.css';
 
 export default function Sidebar() {
   const [donationOpen, setDonationOpen] = useState(true);
+  const [functionsOpen, setFunctionsOpen] = useState(false);
 
   return (
     <aside className="sidebar">
@@ -40,7 +41,29 @@ export default function Sidebar() {
         </div>
 
         <a className="menu-item">Loja de Pontos</a>
-        <a className="menu-item">Funções</a>
+
+        <div className="menu-item has-children">
+          <button
+            className="menu-link"
+            onClick={() => setFunctionsOpen(v => !v)}
+            aria-expanded={functionsOpen}
+          >
+            <span className="icon">⎈</span>
+            <span className="label">Funções</span>
+            <span className={`caret ${functionsOpen ? 'open' : ''}`}>
+              ▾
+            </span>
+          </button>
+
+          <ul className={`submenu ${functionsOpen ? 'open' : ''}`}>
+            <li><a className="submenu-item">Resgate de Presentes</a></li>
+            <li><a className="submenu-item">Logado Premiado</a></li>
+            <li><a className="submenu-item">Folhas por Hora</a></li>
+
+            <li className="submenu-section">EVENTOS</li>
+            <li><a className="submenu-item">Resgate de Folhas</a></li>
+          </ul>
+        </div>
       </nav>
     </aside>
   );
