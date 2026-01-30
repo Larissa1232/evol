@@ -40,8 +40,7 @@ export default function Sidebar() {
           </ul>
         </div>
 
-        <a className="menu-item">Loja de Pontos</a>
-
+        
         <div className="menu-item has-children">
           <button
             className="menu-link"
@@ -64,6 +63,8 @@ export default function Sidebar() {
             <li><a className="submenu-item">Resgate de Folhas</a></li>
           </ul>
         </div>
+        <div className="menu-section"></div>
+        <a className="menu-item">Minha conta</a>
       </nav>
     </aside>
   );
