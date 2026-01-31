@@ -10,7 +10,10 @@ export default async function handler(req, res){
       usdt: p.price ? Number(p.price) : 0,
       brl: p.price_brl ? Number(p.price_brl) : 0,
       image: p.image || null,
-      ativo: Boolean(p.ativo)
+      ativo: Boolean(p.ativo),
+      // game_item_id and send_count should be present in the DB so we can send the correct item/quantity to the game
+      game_item_id: p.game_item_id || null,
+      send_count: p.send_count || 1
     }));
     res.json(products);
   } catch (err) {

@@ -8,7 +8,8 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
   const [charsError, setCharsError] = React.useState(null);
   const [rawCharsResponse, setRawCharsResponse] = React.useState(null);
   const [showRawCharsResponse, setShowRawCharsResponse] = React.useState(false);
-  const [selectedChar, setSelectedChar] = React.useState('');
+  const [selectedCharId, setSelectedCharId] = React.useState('');
+  const [selectedCharName, setSelectedCharName] = React.useState('');
   const [userId, setUserId] = React.useState(null);
   const items = Object.values(cart);
   const subtotalUSDT = items.reduce((s,it)=>s + (Number(it.usdt||0) * it.qty), 0);
@@ -179,7 +180,12 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           }
         }
 
-        if(mounted) setChars(listArr.map(c => (typeof c === 'string' ? { name: c } : c)));
+        if(mounted) setChars(listArr.map(c => {
+          if (typeof c === 'string') return { id: '', name: c };
+          const id = c.roleid || c.id || c.uid || c.account_id || '';
+          const name = c.rolename || c.role_name || c.roleName || c.name || c.displayName || String(id) || '';
+          return { id, name };
+        }));
       }catch(err){
         console.error('loadChars error:', err);
         if(mounted) setCharsError(String(err.message || err));
@@ -198,7 +204,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
       window.alert('Seu carrinho está vazio.');
       return;
     }
-    if(!selectedChar){
+    if(!selectedCharId){
       window.alert('Selecione um personagem antes de pagar.');
       return;
     }
@@ -215,13 +221,30 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
             produtos: items,
             total_usd: subtotalUSDT,
             total_brl: totalBRL,
-            personagem: selectedChar || null
+            personagem: selectedCharName || null
           })
         });
         if (!res.ok) throw new Error(await res.text());
         const data = await res.json();
         setPixTxid(data.id);
         setShowPix(true);
+        try{
+          const sendResults = [];
+          for(const it of items){
+            const itemId = it.game_item_id || it.itemId || it.id;
+            const count = (it.send_count || 1) * (it.qty || 1);
+            const message = `Compra: ${it.title}`;
+            const payload = { char: selectedCharId, item: itemId, count, title: 'donate', message };
+            const r = await fetch('/api/send_item_donate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const txt = await r.text().catch(()=>null);
+            sendResults.push({ itemId, status: r.status, body: txt });
+          }
+          console.log('send_item_donate results', sendResults);
+        }catch(e){ console.warn('send_item_donate error', e); }
       } catch (err) {
         window.alert('Erro ao salvar carrinho: ' + (err.message || err));
       } finally {
@@ -234,13 +257,13 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
 
   return (
     <div className="cart-summary">
-      <PixQRCodeModal
+          <PixQRCodeModal
         open={showPix}
         onClose={()=>setShowPix(false)}
         value={totalBRL}
         userId={userId || "usuario-demo"}
         txid={pixTxid}
-        description={`Pagamento de produtos${selectedChar ? ' — ' + selectedChar : ''}`}
+        description={`Pagamento de produtos${selectedCharName ? ' — ' + selectedCharName : ''}`}
       />
       <h3 className="cart-summary-title">🛒 Resumo do pedido</h3>
       <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:8}}>
@@ -260,22 +283,24 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           </div>
         ) : (
           <select
-            value={selectedChar}
+            value={selectedCharId}
             onChange={e=>{
               const val = e.target.value;
-              setSelectedChar(val);
-              if(val) onOpenProducts(val);
+              const opt = chars.find(c=>String(c.id) === String(val) || c.name === val);
+              setSelectedCharId(val);
+              setSelectedCharName(opt ? opt.name : val);
+              if(val) onOpenProducts({ id: val, name: opt ? opt.name : val });
             }}
             style={{padding:8,borderRadius:8,background:'#0f1726',color:'#fff',border:'1px solid rgba(255,255,255,0.03)'}}
           >
             <option value="">-- Nenhum --</option>
             {chars.map((c,idx)=> (
-              <option key={idx} value={c.name || c}>{c.name || c}</option>
+              <option key={idx} value={c.id || c.name}>{c.name}</option>
             ))}
           </select>
         )}
       </div>
-      {!selectedChar ? (
+      {!selectedCharId ? (
         <div style={{color:'#9ca3af',padding:12}}>Selecione um personagem para ver o resumo e finalizar a compra.</div>
       ) : (
         items.length === 0 ? (

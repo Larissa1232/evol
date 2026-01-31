@@ -25,7 +25,7 @@ export default function ProductsGrid({cart = {}, onChangeQuantity = ()=>{}}){
       const r = await fetch(`${API_BASE}/api/products`);
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const data = await r.json();
-      const mapped = data.map(p=>({ id: p.id, title: p.title, usdt: Number(p.usdt), brl: Number(p.brl) }));
+      const mapped = data.map(p=>({ id: p.id, title: p.title, usdt: Number(p.usdt), brl: Number(p.brl), game_item_id: p.game_item_id || null, send_count: p.send_count || 1 }));
       setProducts(mapped);
     }catch(err){
       console.warn('Could not load products from API, using static list', err);

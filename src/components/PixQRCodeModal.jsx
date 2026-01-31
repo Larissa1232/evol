@@ -6,20 +6,31 @@ export default function PixQRCodeModal({ open, onClose, value, userId, txid, des
   const [error, setError] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   React.useEffect(() => {
     if (open && value && userId) {
       setLoading(true);
       setError(null);
       setQrData(null);
-      fetch('/api/pix', {
+      fetch('/api/pix/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value, userId, txid, description })
+        body: JSON.stringify({ amount: Math.round(Number(value) * 100), reference: txid || userId, description })
       })
         .then(async (r) => {
-          if (!r.ok) throw new Error(await r.text());
-          return r.json();
+          const txt = await r.text().catch(() => '');
+          let data = null;
+          try { data = txt ? JSON.parse(txt) : null; } catch (e) {
+            // server returned non-JSON (likely HTML) — surface the body as error
+            throw new Error(txt || 'Invalid response from server');
+          }
+          if (!r.ok) {
+            const msg = (data && (data.error || data.message)) ? (data.error || data.message) : JSON.stringify(data);
+            throw new Error(msg || 'Server error');
+          }
+          // prefer normalized `data` returned by the API, otherwise fall back
+          return data?.data || data || null;
         })
         .then((data) => setQrData(data))
         .catch((err) => setError(err.message || String(err)))
@@ -57,13 +68,24 @@ export default function PixQRCodeModal({ open, onClose, value, userId, txid, des
         {qrData && (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-              <img src={qrData.qrcodeImage} alt="QR Code Pix" style={{ width: 220, height: 220, margin: 8, borderRadius: 12, background: '#fff', boxShadow: '0 2px 12px #0004' }} />
+              {(() => {
+                const imgSrc = qrData.qrcodeImage || qrData.qrCodeImage || (qrData.raw && (qrData.raw.qrCodeImage || qrData.raw.charge && qrData.raw.charge.qrCodeImage)) || null;
+                if (imgSrc && !imgError) {
+                  return <img src={imgSrc} onError={() => setImgError(true)} alt="QR Code Pix" style={{ width: 220, height: 220, margin: 8, borderRadius: 12, background: '#fff', boxShadow: '0 2px 12px #0004' }} />
+                }
+                return <div style={{ width: 220, height: 220, margin: 8, borderRadius: 12, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#666' }}>{imgError ? 'QR não disponível' : 'Gerando imagem...'}</div>
+              })()}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, margin: '10px 0', width: '100%' }}>
-                <div style={{ wordBreak: 'break-all', fontSize: 13, background: '#222', padding: 8, borderRadius: 6, maxWidth: 260, textAlign: 'left', flex: 1, border: '1px solid #333' }}>{qrData.brCode}</div>
+                <div style={{ wordBreak: 'break-all', fontSize: 13, background: '#222', padding: 8, borderRadius: 6, maxWidth: 260, textAlign: 'left', flex: 1, border: '1px solid #333' }}>{qrData.brCode || qrData.raw?.brCode || qrData.raw?.charge?.brCode}</div>
                 <button onClick={copyPixCode} style={{ background: '#a3e635', border: 'none', borderRadius: 6, padding: 6, cursor: 'pointer', color: '#222', fontWeight: 700, fontSize: 16, display: 'flex', alignItems: 'center', boxShadow: '0 1px 4px #a3e63555' }} title="Copiar código Pix">
                   <FaRegCopy />
                 </button>
               </div>
+              {imgError && qrData?.raw?.paymentLinkUrl && (
+                <div style={{ marginTop: 8 }}>
+                  <a href={qrData.raw.paymentLinkUrl} target="_blank" rel="noreferrer" style={{ color: '#a3e635' }}>Abrir link de pagamento</a>
+                </div>
+              )}
               {copied && <div style={{ color: '#a3e635', fontSize: 13, marginBottom: 4 }}>Código Pix copiado!</div>}
               <div style={{ color: '#a3e635', fontWeight: 700, fontSize: 18, marginBottom: 8 }}>Valor: R$ {(Number(value)).toFixed(2)}</div>
               <div style={{ fontSize: 13, color: '#9ca3af', marginBottom: 2 }}>Escaneie o QR Code no app do seu banco ou copie o código Pix acima.</div>
