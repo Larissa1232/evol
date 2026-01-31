@@ -48,8 +48,19 @@ function App(){
 						{page === 'donate' && (
 							<>
 								<h2 className="section-title">Available products</h2>
-								<ProductsGrid cart={cart} onChangeQuantity={setQuantity} />
-								<CartSummary cart={cart} onChangeQuantity={setQuantity} onClear={clearCart} />
+								<ProductsGrid id="products-grid" cart={cart} onChangeQuantity={setQuantity} />
+								<CartSummary
+									cart={cart}
+									onChangeQuantity={setQuantity}
+									onClear={clearCart}
+									onOpenProducts={(char)=>{
+										setPage('donate');
+										setTimeout(()=>{
+											const el = document.getElementById('products-grid');
+											if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+										}, 100);
+									}}
+								/>
 							</>
 						)}
 					{page === 'transacoes' && (

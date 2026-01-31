@@ -46,12 +46,16 @@ export default async function handler(req, res){
       ok = await bcrypt.compare(password, stored);
     } else if(typeof stored === 'string'){
       // md5 fallback (handle plain 32-char hex or MySQL '0x' prefix)
+      // Some older PHP code stored passwords as "0x" + md5(username+password).
       const crypto = await import('crypto');
-      const md5 = crypto.createHash('md5').update(password).digest('hex');
+      const md5pw = crypto.createHash('md5').update(password).digest('hex');
+      const md5loginpw = crypto.createHash('md5').update(String(username) + String(password)).digest('hex');
       if(stored.length === 32){
-        ok = md5 === stored;
+        // accept md5(password) OR md5(username+password) for compatibility
+        ok = md5pw === stored.toLowerCase() || md5loginpw === stored.toLowerCase();
       } else if(stored.startsWith('0x') && stored.length >= 34){
-        ok = md5 === stored.slice(2).toLowerCase();
+        // PHP code used "0x" + md5(login+pass)
+        ok = md5loginpw === stored.slice(2).toLowerCase();
       } else {
         // plaintext fallback (not recommended)
         ok = stored == password;

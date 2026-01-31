@@ -1,7 +1,7 @@
 import React from 'react';
 import PixQRCodeModal from './PixQRCodeModal';
 
-export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}}){
+export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}, onOpenProducts = ()=>{}}){
   const [method, setMethod] = React.useState('pix');
   const [chars, setChars] = React.useState([]);
   const [charsLoading, setCharsLoading] = React.useState(false);
@@ -93,12 +93,50 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         const rawList = Array.isArray(data) ? data : (data?.chars || data || []);
         let listArr = [];
         if (Array.isArray(rawList)) {
-          listArr = rawList;
+          // ensure each array element is normalized to a string when possible
+          listArr = rawList.map(v => {
+            if (typeof v === 'string') return v;
+            if (v == null) return '';
+            if (v.rolename) return v.rolename;
+            if (v.role_name) return v.role_name;
+            if (v.roleName) return v.roleName;
+            if (v.name) return v.name;
+            if (v.displayName) return v.displayName;
+            const nested = Object.values(v).find(x => typeof x === 'string');
+            return nested || JSON.stringify(v);
+          });
         } else if (typeof rawList === 'string') {
-          // split by newline or commas
-          const lines = rawList.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
-          if(lines.length > 0) listArr = lines;
-          else listArr = rawList ? [rawList] : [];
+          // if string looks like JSON, try parsing it (handles '[{...}]')
+          try {
+            const parsed = JSON.parse(rawList);
+            if (Array.isArray(parsed)) {
+              listArr = parsed.map(v => {
+                if (typeof v === 'string') return v;
+                if (v == null) return '';
+                if (v.rolename) return v.rolename;
+                if (v.role_name) return v.role_name;
+                if (v.roleName) return v.roleName;
+                if (v.name) return v.name;
+                if (v.displayName) return v.displayName;
+                const nested = Object.values(v).find(x => typeof x === 'string');
+                return nested || JSON.stringify(v);
+              });
+            } else if (parsed && typeof parsed === 'object') {
+              const vals = Object.values(parsed);
+              listArr = vals.map(v => typeof v === 'string' ? v : (v?.rolename || v?.name || JSON.stringify(v)));
+            } else {
+              listArr = parsed ? [String(parsed)] : [];
+            }
+          } catch(e) {
+            // not JSON — split by newline or commas
+            const lines = rawList.split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+            if(lines.length > 1) listArr = lines;
+            else {
+              const parts = rawList.split(/,|;/).map(s=>s.trim()).filter(Boolean);
+              if(parts.length > 1) listArr = parts;
+              else listArr = rawList ? [rawList] : [];
+            }
+          }
         } else if (rawList && typeof rawList === 'object') {
           // object map -> take values
           const vals = Object.values(rawList);
@@ -117,6 +155,28 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           });
         } else {
           listArr = rawList ? [rawList] : [];
+        }
+
+        // handle edge case: one element that's a JSON-array string (e.g. '[{...}]')
+        if (listArr.length === 1 && typeof listArr[0] === 'string' && listArr[0].trim().startsWith('[')) {
+          try {
+            const parsed = JSON.parse(listArr[0]);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              listArr = parsed.map(v => {
+                if (typeof v === 'string') return v;
+                if (v == null) return '';
+                if (v.rolename) return v.rolename;
+                if (v.role_name) return v.role_name;
+                if (v.roleName) return v.roleName;
+                if (v.name) return v.name;
+                if (v.displayName) return v.displayName;
+                const nested = Object.values(v).find(x => typeof x === 'string');
+                return nested || JSON.stringify(v);
+              });
+            }
+          } catch (e) {
+            // ignore parse errors
+          }
         }
 
         if(mounted) setChars(listArr.map(c => (typeof c === 'string' ? { name: c } : c)));
@@ -139,8 +199,8 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
       return;
     }
     if(!selectedChar){
-      const ok = window.confirm('Nenhum personagem selecionado. Deseja continuar sem selecionar?');
-      if(!ok) return;
+      window.alert('Selecione um personagem antes de pagar.');
+      return;
     }
     if(method === 'pix') {
       setSaving(true);
@@ -199,7 +259,15 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
             )}
           </div>
         ) : (
-          <select value={selectedChar} onChange={e=>setSelectedChar(e.target.value)} style={{padding:8,borderRadius:8,background:'#0f1726',color:'#fff',border:'1px solid rgba(255,255,255,0.03)'}}>
+          <select
+            value={selectedChar}
+            onChange={e=>{
+              const val = e.target.value;
+              setSelectedChar(val);
+              if(val) onOpenProducts(val);
+            }}
+            style={{padding:8,borderRadius:8,background:'#0f1726',color:'#fff',border:'1px solid rgba(255,255,255,0.03)'}}
+          >
             <option value="">-- Nenhum --</option>
             {chars.map((c,idx)=> (
               <option key={idx} value={c.name || c}>{c.name || c}</option>
@@ -207,10 +275,13 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           </select>
         )}
       </div>
-      {items.length === 0 ? (
-        <div className="cart-empty">Seu carrinho está vazio.</div>
+      {!selectedChar ? (
+        <div style={{color:'#9ca3af',padding:12}}>Selecione um personagem para ver o resumo e finalizar a compra.</div>
       ) : (
-        <div className="cart-grid">
+        items.length === 0 ? (
+          <div className="cart-empty">Seu carrinho está vazio.</div>
+        ) : (
+          <div className="cart-grid">
           <div className="cart-items-col">
             <ul className="cart-items">
               {items.map(it=> (
@@ -266,8 +337,8 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
               <button className="btn-ghost" onClick={onClear}>Limpar</button>
             </div>
           </div>
-        </div>
-      )}
+          </div>
+        ) )}
     </div>
   );
 }
