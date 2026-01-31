@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import './PlayerSidebar.css';
 
 export default function Sidebar({onNavigate = ()=>{}}) {
   const [donationOpen, setDonationOpen] = useState(true);

@@ -1,6 +1,5 @@
 import React from 'react';
 import PixQRCodeModal from './PixQRCodeModal';
-import './PlayerPanel.css';
 
 export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}}){
   const [method, setMethod] = React.useState('pix');

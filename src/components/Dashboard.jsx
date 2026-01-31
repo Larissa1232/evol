@@ -1,5 +1,4 @@
 import React from 'react';
-import './PlayerPanel.css';
 
 function Card({title, value, color}){
   return (

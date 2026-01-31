@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import './PlayerPanel.css';
 
 const TransactionsHistory = () => {
   const [transacoes, setTransacoes] = useState([]);

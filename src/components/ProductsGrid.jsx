@@ -1,6 +1,6 @@
 import React from 'react';
 import {useEffect, useState} from 'react';
-import './PlayerPanel.css';
+// import './PlayerPanel.css'; // Removed redundant CSS import
 const STATIC_PRODUCTS = [
   {id:1,title:'Pack 1$',usdt:0.20, brl:1.04},
   {id:2,title:'Pack 3$',usdt:2.55, brl:13.26},

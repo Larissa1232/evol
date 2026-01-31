@@ -1,5 +1,4 @@
 import React from 'react';
-import './PlayerPanel.css';
 
 export default function CharactersTable(){
   return (

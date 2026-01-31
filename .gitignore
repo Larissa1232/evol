@@ -1,7 +1,6 @@
 node_modules/
-dist/
-.parcel-cache/
-\.env
+.next/
+.env
 package-lock.json
 .DS_Store
-/*.log
+*.log
