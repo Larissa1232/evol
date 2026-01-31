@@ -1,0 +1,75 @@
+/* Login module — improved, single-source styles */
+.loginWrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: radial-gradient(ellipse at center, rgba(8,12,18,0.85), rgba(2,6,12,0.9)), linear-gradient(180deg,#07101a 0%, #0f1720 100%);
+  padding:48px 20px;
+}
+
+.card{
+  width:520px;
+  position:relative;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 30px 80px rgba(2,6,12,0.75), inset 0 1px 0 rgba(255,255,255,0.02);
+  border-radius:16px;
+  padding:36px;
+  color:#eaf2ff;
+  backdrop-filter: blur(8px);
+  overflow:hidden;
+}
+
+.brand{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.logoCircle{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#7a4be0,#3b82f6);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:22px;box-shadow:0 12px 28px rgba(59,59,59,0.35)}
+.brandTitle{font-size:20px;font-weight:900}
+.brandSub{font-size:13px;color:rgba(230,238,248,0.78)}
+
+.hint{font-size:14px;color:rgba(230,238,248,0.72);margin-bottom:12px}
+.form{display:flex;flex-direction:column;gap:14px}
+.inputWrap{position:relative}
+.input{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);padding:14px 16px;border-radius:12px;color:#eaf2ff;outline:none;transition:all .18s;width:100%;font-size:14px}
+.input:focus{box-shadow:0 12px 34px rgba(59,59,59,0.45);transform:translateY(-3px);border-color:rgba(107,59,214,0.95)}
+.inputIcon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:rgba(230,238,248,0.6);font-size:14px}
+.showToggle{background:transparent;border:none;color:inherit;cursor:pointer;padding:6px;border-radius:8px}
+.row{display:flex;align-items:center;gap:8px}
+.actions{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.btn{background:linear-gradient(90deg,#7a4be0,#3b82f6);color:white;padding:12px 18px;border-radius:12px;border:none;cursor:pointer;font-weight:800;box-shadow:0 10px 30px rgba(59,59,59,0.45)}
+.btn[disabled]{opacity:0.6;cursor:not-allowed}
+.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:rgba(230,238,248,0.9);padding:8px 12px;border-radius:10px;cursor:pointer}
+.error{color:#ffb4b4;background:rgba(255,80,80,0.06);padding:8px;border-radius:8px;margin-top:8px}
+.footer{margin-top:18px;font-size:13px;color:rgba(230,238,248,0.6);text-align:center}
+.smallLink{color:#cbd5ff;text-decoration:underline;cursor:pointer}
+
+.fadeIn{animation:fadeInUp .6s ease both}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.hintSmall{font-size:12px;color:rgba(230,238,248,0.6);margin-top:8px}
+
+/* focus-visible for accessibility */
+.input:focus-visible{outline:3px solid rgba(107,59,214,0.12)}
+
+@media (max-width:680px){
+  .card{width:92%;padding:22px;border-radius:12px}
+  .logoCircle{width:52px;height:52px;font-size:18px}
+}
+
+/* subtle inner glow and vignette for the card */
+.card::before{
+  content:'';
+  position:absolute;
+  left:50%;
+  top:45%;
+  transform:translate(-50%,-50%);
+  width:80%;
+  height:60%;
+  background: radial-gradient(closest-side, rgba(107,59,214,0.06), transparent 60%);
+  pointer-events:none;
+}
+
+/* make inputs slightly translucent with inner shadow */
+.input{box-shadow: inset 0 -1px 8px rgba(2,6,12,0.45)}
+
+.brandTitle, .brandSub{user-select:none}
+

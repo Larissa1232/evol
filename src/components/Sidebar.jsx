@@ -1,22 +1,40 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 
 export default function Sidebar({onNavigate = ()=>{}}) {
   const [donationOpen, setDonationOpen] = useState(true);
   const [functionsOpen, setFunctionsOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  useEffect(()=>{
+    let mounted = true;
+    fetch('/api/auth/me').then(r=>r.json()).then(j=>{
+      if(!mounted) return;
+      if(j && j.ok && j.user) setUser(j.user);
+    }).catch(()=>{});
+    return ()=>{ mounted = false };
+  },[]);
+
+  async function handleLogout(){
+    try{ await fetch('/api/auth/logout'); }catch{};
+    window.location.href = '/login';
+  }
 
   return (
     <aside className="sidebar">
       <div className="profile">
-        <div className="avatar">L</div>
+        <div className="avatar">{(user && (user.displayName || user.username) || 'L')[0]?.toUpperCase()}</div>
         <div className="profile-info">
-          <div className="name">Larissa</div>
-          <div className="tag">hime11#4736</div>
+          <div className="name">{user ? (user.displayName || user.username) : 'Carregando...'}</div>
+          <div className="tag">{user && user.email ? user.email : 'connected'}</div>
+        </div>
+        <div style={{marginLeft:'auto'}}>
+          <button onClick={handleLogout} title="Logout" style={{background:'transparent',border:'none',color:'rgba(230,238,248,0.8)',cursor:'pointer'}}>⎋</button>
         </div>
       </div>
 
       <nav className="menu">
         <div className="menu-section">INÍCIO</div>
-        <a className="menu-item active">Dashboard</a>
+        <button className="menu-item active" onClick={()=>onNavigate('dashboard')}>Dashboard</button>
 
         <div className="menu-section">PAINEL</div>
 
@@ -39,31 +57,9 @@ export default function Sidebar({onNavigate = ()=>{}}) {
           </ul>
         </div>
 
-        
-        <div className="menu-item has-children">
-          <button
-            className="menu-link"
-            onClick={() => setFunctionsOpen(v => !v)}
-            aria-expanded={functionsOpen}
-          >
-            <span className="icon">⎈</span>
-            <span className="label">Funções</span>
-            <span className={`caret ${functionsOpen ? 'open' : ''}`}>
-              ▾
-            </span>
-          </button>
-
-          <ul className={`submenu ${functionsOpen ? 'open' : ''}`}>
-            <li><a className="submenu-item">Resgate de Presentes</a></li>
-            <li><a className="submenu-item">Logado Premiado</a></li>
-            <li><a className="submenu-item">Folhas por Hora</a></li>
-
-            <li className="submenu-section">EVENTOS</li>
-            <li><a className="submenu-item">Resgate de Folhas</a></li>
-          </ul>
-        </div>
+        {/* Removed 'Funções' submenu per request */}
         <div className="menu-section"></div>
-        <a className="menu-item">Minha conta</a>
+        <button className="menu-item" onClick={()=>onNavigate('minha-conta')}>Minha conta</button>
       </nav>
     </aside>
   );
