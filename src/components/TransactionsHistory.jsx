@@ -5,13 +5,26 @@ const TransactionsHistory = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/transacoes')
-      .then(res => res.json())
-      .then(data => {
+    async function load(){
+      try{
+        // try get current user
+        const meRes = await fetch('/api/auth/me');
+        let userId = null;
+        if(meRes.ok){
+          const me = await meRes.json();
+          userId = me.user?.id || me.id || null;
+        }
+        const url = userId ? `/api/transacoes?user_id=${encodeURIComponent(userId)}` : '/api/transacoes';
+        const res = await fetch(url);
+        const data = await res.json();
         setTransacoes(data);
+      }catch(e){
+        console.warn('Erro ao carregar transações', e);
+      }finally{
         setLoading(false);
-      })
-      .catch(() => setLoading(false));
+      }
+    }
+    load();
   }, []);
 
   if (loading) return <div className="table-wrap">Carregando...</div>;

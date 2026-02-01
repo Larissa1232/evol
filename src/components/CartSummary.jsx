@@ -218,7 +218,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: 'usuario-demo',
+            user_id: userId || 'usuario-demo',
             produtos: items,
             total_usd: subtotalUSDT,
             total_brl: totalBRL,

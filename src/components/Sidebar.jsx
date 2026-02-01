@@ -62,7 +62,6 @@ export default function Sidebar({onNavigate = ()=>{}}) {
           </ul>
         </div>
 
-        <div className={styles.menuSection}></div>
         <button className={styles.menuItem} onClick={()=>onNavigate('minha-conta')}>Minha conta</button>
       </nav>
     </aside>

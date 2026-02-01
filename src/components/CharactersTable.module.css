@@ -1,0 +1,27 @@
+.tableWrap{ background:linear-gradient(180deg,#071018,#0b1116); padding:18px; border-radius:12px; box-shadow:0 14px 40px rgba(2,6,12,0.6); border:1px solid rgba(255,255,255,0.03); }
+.tableControls{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px }
+.rowsSelect{ color:#9ca3af; font-weight:700 }
+.rowsSelect span{ color:#5b6770; font-weight:500; margin-left:6px }
+.search{ display:flex; align-items:center; gap:8px }
+.search input{ background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.04); color:#cbd5e1; padding:8px 10px; border-radius:8px; outline:none; min-width:220px }
+.search input::placeholder{ color:#6b7280 }
+.charsTable{ width:100%; border-collapse:collapse; color:#d1d5db }
+.charsTable thead th{ text-align:left; font-size:12px; text-transform:uppercase; color:#9ca3af; padding:14px 12px; border-bottom:1px solid rgba(255,255,255,0.03) }
+.charsTable tbody td{ padding:14px 12px; border-bottom:1px solid rgba(255,255,255,0.02); color:#e6eef6 }
+.charsTable tbody tr:hover td{ background:rgba(255,255,255,0.01) }
+.emptyRow{ text-align:center; padding:24px; color:#9ca3af }
+.loadingRow{ text-align:center; padding:24px; color:#9ca3af }
+.rowClickable{ cursor:pointer }
+.detailPanel{ background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px 10px; border-radius:8px }
+.detailGrid{ display:grid; grid-template-columns: 1fr; gap:12px }
+.attrBox{ background:linear-gradient(180deg,#071016,#0b1318); border-radius:8px; padding:12px; border:1px solid rgba(255,255,255,0.03); box-shadow:0 10px 30px rgba(2,6,12,0.6) }
+.attrHeader{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px }
+.attrTitle{ color:#cbd5e1; font-weight:800; font-size:13px }
+.attrScore{ color:#9ef08b; font-weight:900; font-size:13px }
+.attrTable{ display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; align-items:start }
+.attrItem{ display:flex; flex-direction:column; gap:6px; padding:6px; background:transparent }
+.attrLabel{ color:#9ca3af; font-size:11px; font-weight:700 }
+.attrValue{ color:#e6eef6; font-size:13px; font-weight:800 }
+.attrValue.small{ font-size:12px; color:#cbd5e1 }
+.classIcon{ width:36px; height:36px; object-fit:contain; border-radius:6px }
+.classCell{ display:flex; align-items:center; gap:10px }
