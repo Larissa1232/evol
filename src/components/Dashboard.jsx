@@ -1,22 +1,35 @@
 import React from 'react';
+import styles from './Dashboard.module.css';
 
-function Card({title, value, color}){
+function HeroCard({title, value, variant}){
+  const cls = variant === 'red' ? styles.heroRed : variant === 'orange' ? styles.heroOrange : variant === 'green' ? styles.heroGreen : styles.heroGray;
   return (
-    <div className="card" style={{background: color}}>
-      <div className="card-title">{title}</div>
-      <div className="card-value">{value}</div>
-      <div className="card-link">Visualizar detalhes</div>
+    <div className={`${styles.heroCard} ${cls}`}>
+      <div className={styles.heroTitle}>{title}</div>
+      <div className={styles.heroValue}>{value}</div>
+      <div className={styles.heroLink}>Visualizar detalhes ➜</div>
     </div>
   );
 }
 
 export default function Dashboard(){
   return (
-    <div className="dashboard">
-      <Card title="DOAÇÕES FEITAS" value="R$ 0,00" color="#e74c3c" />
-      <Card title="TICKETS" value="0" color="#f39c12" />
-      <Card title="LOGS" value="6" color="#4b5563" />
-      <Card title="PERSONAGENS" value="1" color="#10b981" />
+    <div className={styles.dashboardRoot}>
+      <div className={styles.dashboardBanner}>
+        <div className={styles.dashboardBannerLogo}>OMEGA</div>
+      </div>
+
+      <div style={{padding:'10px 6px', borderRadius:10, marginBottom:6}}>
+        <div style={{fontSize:20, fontWeight:800}}>Olá! Bem-vindo ao painel do jogador.</div>
+        <div style={{color:'var(--muted)', marginTop:6}}>Gerencie seus produtos, pagamentos e personagens aqui.</div>
+      </div>
+
+      <div className={styles.heroCards}>
+        <HeroCard title="Doações feitas" value="R$ 4.334,00" variant="red" />
+        <HeroCard title="Tickets" value="0" variant="orange" />
+        <HeroCard title="Logs" value="21" variant="gray" />
+        <HeroCard title="Personagens" value="1" variant="green" />
+      </div>
     </div>
   );
 }

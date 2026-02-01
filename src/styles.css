@@ -1,18 +1,7 @@
-:root{
-	--bg:#0f1720;
-	--panel:#181b21;
-	--muted:#9aa3b2;
-	--accent:#6b3bd6;
-}
-
+:root{ }
 *{box-sizing:border-box}
 html,body,#root{height:100%}
-body{
-	margin:0;
-	font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-	background: linear-gradient(180deg,#0f1720 100%, #0f1720 100%);
-	color:#e6eef8;
-}
+body{margin:0}
 
 .app{display:flex;min-height:100vh}
 .sidebar{width:260px;background:var(--panel);padding:20px;border-right:1px solid rgba(255,255,255,0.03)}

@@ -16,7 +16,6 @@ export default function LoginPage(){
     setError(null);
     setLoading(true);
     try{
-      // client-side validation
       if(!username || !password){ setError('Preencha usuário e senha'); setLoading(false); return; }
       const r = await fetch('/api/auth/login',{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ username, password }) });
       if(r.ok){ router.push('/'); return; }
@@ -27,45 +26,49 @@ export default function LoginPage(){
 
   return (
     <div className={styles.loginWrap}>
-      <div className={styles.card} role="main">
-        <div className={styles.brand}>
-          <div className={styles.logoCircle}>L</div>
-          <div>
-            <div className={styles.brandTitle}>Evol Panel</div>
-            <div className={styles.brandSub}>Painel de Gerenciamento</div>
-          </div>
-        </div>
+      <div className={styles.layout}>
+        <aside className={styles.hero} aria-hidden>
+          <div className={styles.heroSmall}>FORSAKEN WORLD</div>
+          <div className={styles.heroMain}>Dragon Storm</div>
+        </aside>
 
-        <div className={styles.hint}>Entre com sua conta para acessar o painel.</div>
+        <div className={styles.card} role="main">
+        <h1 className={styles.title}>Acesse</h1>
+        <div className={styles.subline}>Não é membro? <span className={styles.linkAction}>crie uma conta</span></div>
 
         <form className={styles.form} onSubmit={submit} aria-live="polite">
+          <label className={styles.fieldLabel}>LOGIN</label>
           <div className={styles.inputWrap}>
-            <input className={styles.input} placeholder="Usuário" value={username} onChange={e=>setUsername(e.target.value)} aria-label="Usuário" required />
+            <input className={styles.input} placeholder="" value={username} onChange={e=>setUsername(e.target.value)} aria-label="Usuário" required />
           </div>
 
+          <label className={styles.fieldLabel}>SENHA</label>
           <div className={styles.inputWrap}>
-            <input className={styles.input} type={showPwd ? 'text' : 'password'} placeholder="Senha" value={password} onChange={e=>setPassword(e.target.value)} aria-label="Senha" required minLength={3} />
+            <input className={styles.input} type={showPwd ? 'text' : 'password'} placeholder="" value={password} onChange={e=>setPassword(e.target.value)} aria-label="Senha" required minLength={3} />
             <button type="button" className={styles.showToggle} onClick={()=>setShowPwd(s=>!s)} aria-pressed={showPwd} aria-label={showPwd ? 'Esconder senha' : 'Mostrar senha'}>
               {showPwd ? '🙈' : '👁️'}
             </button>
           </div>
 
-          <div className={styles.row} style={{justifyContent:'space-between'}}>
-            <label style={{display:'flex',alignItems:'center',gap:8}}>
-              <input type="checkbox" checked={remember} onChange={e=>setRemember(e.target.checked)} /> Lembrar
+          <div className={styles.row}>
+            <label className={styles.toggle}>
+              <input type="checkbox" checked={remember} onChange={e=>setRemember(e.target.checked)} />
+              <span className={styles.switch} aria-hidden />
+              <span className={styles.toggleLabel}>LEMBRAR CREDENCIAIS</span>
             </label>
-            <button type="button" className={styles.secondary} onClick={()=>{ setUsername(''); setPassword(''); setError(null); }}>Limpar</button>
           </div>
 
           <div className={styles.actions}>
-            <button className={styles.btn} type="submit" disabled={loading}>{loading ? 'Acessando...' : 'Entrar'}</button>
+            <button className={styles.btn} type="submit" disabled={loading}>{loading ? 'Acessando...' : 'ENTRAR'}</button>
           </div>
 
           {error && <div className={styles.error} role="alert">{error}</div>}
         </form>
 
-        <div className={styles.footer}>
-          Não tem conta? <span className={styles.smallLink}>Contate o administrador</span>
+        <div className={styles.footerLinks}>
+          <a className={styles.smallLink}>Esqueceu sua senha?</a>
+          <a className={styles.smallLink}>Reenviar email de ativação</a>
+        </div>
         </div>
       </div>
     </div>

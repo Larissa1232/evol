@@ -1,5 +1,6 @@
 import React from 'react';
 import PixQRCodeModal from './PixQRCodeModal';
+import styles from './CartSummary.module.css';
 
 export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}, onOpenProducts = ()=>{}}){
   const [method, setMethod] = React.useState('pix');
@@ -256,7 +257,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
   }
 
   return (
-    <div className="cart-summary">
+    <div className={styles.cartSummary}>
           <PixQRCodeModal
         open={showPix}
         onClose={()=>setShowPix(false)}
@@ -265,7 +266,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         txid={pixTxid}
         description={`Pagamento de produtos${selectedCharName ? ' — ' + selectedCharName : ''}`}
       />
-      <h3 className="cart-summary-title">🛒 Resumo do pedido</h3>
+      <h3 className={styles.cartSummaryTitle}>🛒 Resumo do pedido</h3>
       <div style={{display:'flex',gap:12,alignItems:'center',marginBottom:8}}>
         <label style={{fontSize:13,color:'var(--muted)'}}>Selecionar personagem:</label>
         {charsLoading ? (
@@ -274,8 +275,8 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           <div style={{color:'#fca5a5',display:'flex',flexDirection:'column',gap:8}}>
             <div>Erro ao carregar personagens: {charsError}</div>
             <div style={{display:'flex',gap:8}}>
-              <button className="btn-ghost" onClick={()=>{ setShowRawCharsResponse(v=>!v); }}>Ver resposta</button>
-              <button className="btn-ghost" onClick={()=>{ setRawCharsResponse(null); setCharsError(null); setChars([]); }}>Tentar novamente</button>
+              <button className={styles.btnGhost} onClick={()=>{ setShowRawCharsResponse(v=>!v); }}>Ver resposta</button>
+              <button className={styles.btnGhost} onClick={()=>{ setRawCharsResponse(null); setCharsError(null); setChars([]); }}>Tentar novamente</button>
             </div>
             {showRawCharsResponse && rawCharsResponse && (
               <pre style={{whiteSpace:'pre-wrap',background:'#071025',color:'#cbd5e1',padding:12,borderRadius:8,marginTop:8,maxHeight:240,overflow:'auto'}}>{rawCharsResponse}</pre>
@@ -283,6 +284,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           </div>
         ) : (
           <select
+            className={`${styles.charSelect} ${selectedCharId ? styles.charSelectSelected : ''}`}
             value={selectedCharId}
             onChange={e=>{
               const val = e.target.value;
@@ -291,7 +293,6 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
               setSelectedCharName(opt ? opt.name : val);
               if(val) onOpenProducts({ id: val, name: opt ? opt.name : val });
             }}
-            style={{padding:8,borderRadius:8,background:'#0f1726',color:'#fff',border:'1px solid rgba(255,255,255,0.03)'}}
           >
             <option value="">-- Nenhum --</option>
             {chars.map((c,idx)=> (
@@ -302,20 +303,19 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
       </div>
       {!selectedCharId ? (
         <div style={{color:'#9ca3af',padding:12}}>Selecione um personagem para ver o resumo e finalizar a compra.</div>
+      ) : items.length === 0 ? (
+        <div className="cart-empty">Seu carrinho está vazio.</div>
       ) : (
-        items.length === 0 ? (
-          <div className="cart-empty">Seu carrinho está vazio.</div>
-        ) : (
-          <div className="cart-grid">
-          <div className="cart-items-col">
-            <ul className="cart-items">
+        <div className={styles.cartGrid}>
+          <div className={styles.cartItemsCol}>
+            <ul className={styles.cartItems}>
               {items.map(it=> (
-                  <li key={it.id} className={`cart-item cart-item-anim`}>
+                  <li key={it.id} className={`${styles.cartItem} cart-item-anim`}>
                     <div className="cart-col cart-name">
-                      <div className="cart-item-title">
+                      <div className={styles.cartItemTitle}>
                         <span className="cart-item-icon" title="Produto">🏺</span>
                         {it.title}
-                        <span className="cart-badge">x{it.qty}</span>
+                        <span className={styles.cartBadge}>x{it.qty}</span>
                       </div>
                       <div className="cart-item-price"><span className="cs-usdt">USDT {(it.usdt*it.qty).toFixed(2)}</span> • <span className="cs-brl">R$ {(it.brl*it.qty).toFixed(2)}</span></div>
                     </div>
@@ -327,10 +327,10 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
                   </li>
                 ))}
             </ul>
-            <div className="cart-items-separator"></div>
+            <div className={styles.cartItemsSeparator}></div>
           </div>
 
-          <div className="cart-right">
+          <div className={styles.cartRight}>
             <div className="cart-totals">
               <div>Subtotal USDT: <strong><span className="cs-usdt" title="Total em USDT">{subtotalUSDT.toFixed(2)}</span></strong></div>
               <div>Subtotal BRL: <strong><span className="cs-brl" title="Total em reais">R$ {subtotalBRL.toFixed(2)}</span></strong></div>
@@ -341,29 +341,29 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
             </div>
 
             <div className="payment-section">
-              <div className="payment-methods">
-                <div className={`method-card pix ${method==='pix'? 'method-selected':''}`} onClick={()=>setMethod('pix')}>
-                  <div className="method-name">PIX</div>
+              <div className={styles.paymentMethods}>
+                <div className={`${styles.methodCard} ${method==='pix'? styles.methodSelected : ''} ${method==='pix' && selectedCharId ? styles.methodHighlighted : ''}`} onClick={()=>setMethod('pix')}>
+                  <div className={styles.methodName}>PIX</div>
                   <span className="method-tooltip">Pagamento instantâneo</span>
                 </div>
-                <div className={`method-card binance ${method==='binance'? 'method-selected':''}`} onClick={()=>setMethod('binance')}>
-                  <div className="method-name">Binance</div>
+                <div className={`${styles.methodCard} ${method==='binance'? styles.methodSelected : ''}`} onClick={()=>setMethod('binance')}>
+                  <div className={styles.methodName}>Binance</div>
                   <span className="method-tooltip">Cripto via Binance</span>
                 </div>
-                <div className={`method-card paypal ${method==='paypal'? 'method-selected':''}`} onClick={()=>setMethod('paypal')}>
-                  <div className="method-name">PayPal</div>
+                <div className={`${styles.methodCard} ${method==='paypal'? styles.methodSelected : ''}`} onClick={()=>setMethod('paypal')}>
+                  <div className={styles.methodName}>PayPal</div>
                   <span className="method-tooltip">Cartão ou saldo PayPal</span>
                 </div>
               </div>
             </div>
 
-            <div className="cart-actions">
-              <button className="btn-primary" onClick={pay} disabled={items.length===0 || saving}>{saving ? 'Salvando...' : 'Pagar'}</button>
-              <button className="btn-ghost" onClick={onClear}>Limpar</button>
+            <div className={styles.cartActions}>
+              <button className={`${styles.btnPrimary} ${selectedCharId ? styles.payPulse : ''}`} onClick={pay} disabled={items.length===0 || saving} title={selectedCharId ? `Pagar para ${selectedCharName || selectedCharId}` : 'Selecione um personagem'}>{saving ? 'Salvando...' : (selectedCharName ? `Pagar` : 'Pagar')}</button>
+              <button className={styles.btnGhost} onClick={onClear}>Limpar</button>
             </div>
           </div>
-          </div>
-        ) )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,18 +1,37 @@
 :root{
-	--bg:#0f1720;
-	--panel:#181b21;
-	--muted:#9aa3b2;
-	--accent:#6b3bd6;
+	/* Design tokens (refined for better contrast) */
+	--bg: #071018; /* page background */
+	--panel: #0d1418; /* card / panel base */
+	--panel-2: #0b1115;
+	--bg-900:#0c0f12;
+	--bg-800:#0f1317;
+	--primary-blue:#1e6aff;
+	--primary-purple:#7a4be0;
+	--accent-bronze:#d0872b;
+	--muted: rgba(230,238,248,0.78); /* brighter muted text */
+	--muted-dim: rgba(230,238,248,0.55);
+	--accent: #7a4be0; /* purple */
+	--accent-2: #3b82f6; /* blue */
+	--primary-purple: #7a4be0;
+	--primary-blue: #3b82f6;
+	--success: #a3e635;
+	--danger: #ff6b6b;
+	--surface-1: rgba(255,255,255,0.02);
+	--surface-2: rgba(255,255,255,0.03);
+	--surface-3: rgba(255,255,255,0.04);
+	--glass: rgba(7,10,15,0.5);
+	--card-border: rgba(120,95,245,0.14);
+	--input-border: rgba(120,95,245,0.12);
+	--radius-sm: 8px;
+	--radius-md: 12px;
+	--radius-lg: 16px;
+	--space-sm: 8px;
+	--space-md: 12px;
+	--space-lg: 20px;
+	--font-sans: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
 }
+.container{ max-width:1200px; margin:0 auto; padding:0 18px }
 
-*{box-sizing:border-box}
-html,body,#root{height:100%}
-body{
-	margin:0;
-	font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-	background: linear-gradient(180deg,#0f1720 100%, #0f1720 100%);
-	color:#e6eef8;
-}
 
 .app{display:flex;min-height:100vh}
 .sidebar{width:280px;background:linear-gradient(180deg, rgba(12,15,20,0.95), rgba(18,20,24,0.95));padding:22px;border-right:1px solid rgba(255,255,255,0.03);display:flex;flex-direction:column;gap:18px}
@@ -44,6 +63,31 @@ body{
 	.sidebar{display:none}
 }
 .main{flex:1;display:flex;flex-direction:column}
+.app-root, body {
+	margin: 0;
+	min-height: 100vh;
+	background: linear-gradient(180deg, var(--bg) 0%, var(--panel-2) 100%);
+	color: var(--muted);
+	font-family: var(--font-sans);
+}
+/* Motion & focus tokens */
+:root{
+  --anim-fast: 120ms;
+  --anim-med: 200ms;
+  --anim-ease: cubic-bezier(.2,.9,.2,1);
+}
+
+/* Accessible focus outlines */
+:focus-visible{outline:2px solid var(--primary-blue);outline-offset:3px;border-radius:6px}
+
+button, .menuItem, .menuLink, .submenuItem, .actionBtn, input, a{transition:all var(--anim-fast) var(--anim-ease)}
+
+/* Specific focus styles for interactive elements */
+.menuItem:focus-visible, .menuLink:focus-visible, .submenuItem:focus-visible, .actionBtn:focus-visible{box-shadow:0 6px 18px rgba(59,130,246,0.08);}
+
+/* Micro-interactions */
+.actionBtn:hover, .menuItem:hover, .menuLink:hover, .submenuItem:hover{transform:translateX(2px)}
+
 .header{height:90px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:transparent}
 .logo{font-weight:800;font-size:28px;letter-spacing:2px;color:#fff}
 .topbar{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));height:96px;display:flex;align-items:center;justify-content:center;padding:18px;border-radius:12px;margin-bottom:18px}

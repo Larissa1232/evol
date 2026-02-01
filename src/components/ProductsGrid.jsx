@@ -1,5 +1,6 @@
 import React from 'react';
 import {useEffect, useState} from 'react';
+import styles from './ProductsGrid.module.css';
 // import './PlayerPanel.css'; // Removed redundant CSS import
 
 // Use relative API base so frontend requests the same origin
@@ -71,32 +72,31 @@ export default function ProductsGrid({cart = {}, onChangeQuantity = ()=>{}}){
   }
 
   return (
-    <div className="products-panel">
-      <div className="products-grid">
-        {loading && <div style={{gridColumn:'1/-1',color:'#9ca3af',padding:'12px'}}>Carregando produtos...</div>}
-        {error && <div style={{gridColumn:'1/-1',color:'#fca5a5',padding:'12px',display:'flex',gap:8,alignItems:'center'}}>
+    <div className={styles.productsPanel}>
+      <div className={styles.productsGrid}>
+        {loading && <div style={{gridColumn:'1/-1',color:'var(--muted)',padding:'12px'}}>Carregando produtos...</div>}
+        {error && <div style={{gridColumn:'1/-1',color:'var(--danger)',padding:'12px',display:'flex',gap:8,alignItems:'center'}}>
           <div>Erro ao carregar produtos: {error}</div>
           <button className="btn-ghost" onClick={fetchProducts}>Tentar novamente</button>
         </div>}
         {products.filter(p=>p.ativo).map(p => {
           const qty = qtyFor(p.id);
           return (
-            <div key={p.id} className={`product-card ${qty>0? 'selected':''}`}>
-              {qty>0 && <div className="product-check">✓</div>}
-              {/* Badge visual no canto superior direito */}
-              <div className="product-badge">{qty > 0 ? `x${qty}` : 'Novo'}</div>
-              <div className="product-icon">
-                {p.image ? <img src={p.image} alt={p.title} style={{width:48,height:48,objectFit:'cover',borderRadius:6}}/> : '🏺'}
+            <div key={p.id} className={`${styles.productCard} ${qty>0? styles.productCardSelected : ''}`}>
+              {qty>0 && <div className={styles.productCheck}>✓</div>}
+              <div className={styles.productBadge}>{qty > 0 ? `x${qty}` : 'Novo'}</div>
+              <div className={styles.productIcon}>
+                {p.image ? <img src={p.image} alt={p.title} /> : '🏺'}
               </div>
-              <div className="product-title">{p.title}</div>
-              <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:8}}>
-                <span className="product-usdt" style={{color:'#3b82f6',fontWeight:700}}>USDT {p.usdt.toFixed(2)}</span>
-                <span className="product-brl" style={{color:'#10b981',fontWeight:700}}>R$ {p.brl.toFixed(2)}</span>
+              <div className={styles.productTitle}>{p.title}</div>
+              <div className={styles.productPrices}>
+                <span className="product-usdt" style={{color:'var(--accent-2)',fontWeight:700}}>USDT {p.usdt.toFixed(2)}</span>
+                <span className="product-brl" style={{color:'var(--success)',fontWeight:700}}>R$ {p.brl.toFixed(2)}</span>
               </div>
-              <div className="product-controls">
-                <button className="qty-btn" onClick={()=>dec(p)} disabled={qty <= (p.min || 0)}>-</button>
-                <input className="qty-input" type="number" min={p.min || 0} max={p.max || ''} value={qty} onChange={(e)=>onInputChange(p,e)} />
-                <button className="qty-btn" onClick={()=>inc(p)} disabled={qty >= (p.max || 99999)}>+</button>
+              <div className={styles.productControls}>
+                <button className={styles.qtyBtn} onClick={()=>dec(p)} disabled={qty <= (p.min || 0)}>-</button>
+                <input className={styles.qtyInput} type="number" min={p.min || 0} max={p.max || ''} value={qty} onChange={(e)=>onInputChange(p,e)} />
+                <button className={styles.qtyBtn} onClick={()=>inc(p)} disabled={qty >= (p.max || 99999)}>+</button>
               </div>
             </div>
           );
