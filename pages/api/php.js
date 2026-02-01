@@ -2,7 +2,7 @@ import axios from 'axios';
 
 export default async function handler(req, res){
   try {
-    const phpUrl = 'http://192.168.1.9/index.php';
+    const phpUrl = 'http://192.168.1.8/index.php';
     const response = await axios({
       method: req.method,
       url: phpUrl,

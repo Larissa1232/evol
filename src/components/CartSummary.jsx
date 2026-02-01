@@ -228,23 +228,23 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         const data = await res.json();
         setPixTxid(data.id);
         setShowPix(true);
-        try{
-          const sendResults = [];
-          for(const it of items){
-            const itemId = it.game_item_id || it.itemId || it.id;
-            const count = (it.send_count || 1) * (it.qty || 1);
-            const message = `Compra: ${it.title}`;
-            const payload = { char: selectedCharId, item: itemId, count, title: 'donate', message };
-            const r = await fetch('/api/send_item_donate', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-            const txt = await r.text().catch(()=>null);
-            sendResults.push({ itemId, status: r.status, body: txt });
-          }
-          console.log('send_item_donate results', sendResults);
-        }catch(e){ console.warn('send_item_donate error', e); }
+          try{
+            const sendResults = [];
+            for(const it of items){
+              const itemId = it.game_item_id || it.itemId || it.id;
+              const count = (it.send_count || 1) * (it.qty || 1);
+              const message = it.message || (`Compra: ${it.title}`);
+              const payload = { char: selectedCharId, item: itemId, count, title: 'donate', message };
+              const r = await fetch('/api/send_item_donate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+              });
+              const txt = await r.text().catch(()=>null);
+              sendResults.push({ itemId, count, status: r.status, body: txt });
+            }
+            console.log('send_item_donate results', sendResults);
+          }catch(e){ console.warn('send_item_donate error', e); }
       } catch (err) {
         window.alert('Erro ao salvar carrinho: ' + (err.message || err));
       } finally {

@@ -23,7 +23,13 @@ export default async function handler(req, res){
   const cookieHeader = req.headers.cookie || '';
   const cookies = parse(cookieHeader || '');
   const token = cookies.auth;
-  if(!token) return res.status(401).json({ error: 'not_authenticated' });
+  if(!token){
+    // In development allow a demo user so the frontend can work without real auth.
+    if(process.env.NODE_ENV !== 'production'){
+      return res.json({ ok: true, user: { id: 'usuario-demo', username: 'usuario-demo', displayName: 'Usuário Demo' } });
+    }
+    return res.status(401).json({ error: 'not_authenticated' });
+  }
 
   let payload;
   try{ payload = jwt.verify(token, JWT_SECRET); }catch(e){ return res.status(401).json({ error: 'invalid_token' }); }

@@ -27,14 +27,17 @@ export default async function handler(req, res) {
 
     const out = { ok: true, raw: payload };
     const orderNumber = charge?.transactionID || charge?.identifier || charge?.paymentLinkID || charge?.id || payload?.correlationID || null;
+    // txid/correlationID is what we want to expose as TX id for the frontend
+    const txid = charge?.txid || charge?.correlationID || charge?.correlationId || payload?.txid || payload?.correlationID || charge?.transactionID || null;
     const brCode = charge?.brCode || charge?.br_code || charge?.paymentMethods?.pix?.brCode || payload?.brCode || null;
     const qrcodeImage = charge?.qrCodeImage || charge?.qrCode || charge?.qrCodeImage || charge?.paymentMethods?.pix?.qrCodeImage || payload?.qrCodeImage || null;
 
     out.orderNumber = orderNumber;
+    out.txid = txid;
     out.brCode = brCode;
     out.qrcodeImage = qrcodeImage;
     // include a `data` key so frontend parsing prefers the normalized payload
-    out.data = { orderNumber, brCode, qrcodeImage };
+    out.data = { orderNumber, txid, brCode, qrcodeImage };
 
     return res.status(200).json(out);
   } catch (err) {

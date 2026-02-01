@@ -4,12 +4,12 @@ require('dotenv').config();
 const prisma = new PrismaClient();
 
 const PRODUCTS = [
-  { title: 'Pack 1$', usdt: 0.20, brl: 1.04 },
-  { title: 'Pack 3$', usdt: 2.55, brl: 13.26 },
-  { title: 'Pack 5$', usdt: 4.25, brl: 22.10 },
-  { title: 'Pack 10$', usdt: 7.50, brl: 39.01 },
-  { title: 'Pack 30$', usdt: 22.50, brl: 117.02 },
-  { title: 'Pack 50$', usdt: 39.00, brl: 202.84 },
+  { title: 'Pack 1$', usdt: 0.20, brl: 1.04, game_item_id: 14188, send_count: 1 },
+  { title: 'Pack 3$', usdt: 2.55, brl: 13.26, game_item_id: 36202, send_count: 1 },
+  { title: 'Pack 5$', usdt: 4.25, brl: 22.10, game_item_id: 123, send_count: 1 },
+  { title: 'Pack 10$', usdt: 7.50, brl: 39.01, game_item_id: 14188, send_count: 2 },
+  { title: 'Pack 30$', usdt: 22.50, brl: 117.02, game_item_id: 36202, send_count: 3 },
+  { title: 'Pack 50$', usdt: 39.00, brl: 202.84, game_item_id: 36202, send_count: 5 },
 ];
 
 async function main(){
@@ -21,10 +21,11 @@ async function main(){
 
   console.log('Seeding products...');
   const seedData = PRODUCTS.map(p => ({
-    value: p.title,
     price: p.usdt.toString(),
     price_brl: p.brl.toString(),
     description: p.title,
+    game_item_id: p.game_item_id || null,
+    send_count: p.send_count || 1,
     min: 1,
     max: 1,
     ativo: true

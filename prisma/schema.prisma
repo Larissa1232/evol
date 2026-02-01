@@ -1,16 +1,3 @@
-model Carrinho {
-  id            Int      @id @default(autoincrement())
-  user_id       String   @db.VarChar(50)
-  txid          String?  @db.VarChar(100)
-  produtos      String   @db.Text
-  total_usd     Decimal? @db.Decimal(10,2)
-  total_brl     Decimal? @db.Decimal(10,2)
-  status        String   @db.VarChar(20)
-  criado_em     DateTime @default(now()) @db.DateTime(0)
-  atualizado_em DateTime @updatedAt @db.DateTime(0)
-
-  @@map("carrinho")
-}
 generator client {
   provider = "prisma-client-js"
 }
@@ -20,30 +7,200 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Carrinho {
+  id            Int      @id @default(autoincrement())
+  user_id       String   @db.VarChar(50)
+  txid          String?  @db.VarChar(100)
+  produtos      String   @db.Text
+  total_usd     Decimal? @db.Decimal(10, 2)
+  total_brl     Decimal? @db.Decimal(10, 2)
+  status        String   @db.VarChar(20)
+  criado_em     DateTime @default(now()) @db.DateTime(0)
+  atualizado_em DateTime @default(now()) @updatedAt @db.DateTime(0)
+
+  @@map("carrinho")
+}
+
 model Produtos {
-  id          Int      @id @default(autoincrement())
-  image       String?  @db.VarChar(255)
-  price       Decimal? @db.Decimal(10,4)
-  price_brl   Decimal? @db.Decimal(10,2)
-  description String?  @db.VarChar(255)
-  value       String   @db.VarChar(100)
-  min         Int?     @default(1)
-  max         Int?     @default(1)
-  ativo       Boolean  @default(true)
-  descontos   Json?
-  created_at  DateTime @default(now()) @db.Timestamp(6)
+  id           Int      @id @default(autoincrement())
+  image        String?  @db.VarChar(255)
+  price        Decimal? @db.Decimal(10, 4)
+  price_brl    Decimal? @db.Decimal(10, 2)
+  description  String?  @db.VarChar(255)
+  min          Int?     @default(1)
+  max          Int?     @default(1)
+  ativo        Boolean  @default(true)
+  game_item_id Int?
+  send_count   Int?     @default(1)
+  created_at   DateTime @default(now()) @db.Timestamp(6)
+  message      String?  @db.VarChar(255)
 
   @@map("produtos")
 }
 
 model Transacao {
-  id          Int      @id @default(autoincrement())
-  user_id     String   @db.VarChar(50)
-  valor       Decimal  @db.Decimal(10,2)
-  tipo        String   @db.VarChar(30) // exemplo: 'doacao', 'compra', 'pix', etc
-  status      String   @db.VarChar(20)
-  descricao   String?  @db.VarChar(255)
-  criado_em   DateTime @default(now()) @db.DateTime(0)
+  id        Int      @id @default(autoincrement())
+  user_id   String   @db.VarChar(50)
+  valor     Decimal  @db.Decimal(10, 2)
+  tipo      String   @db.VarChar(30)
+  status    String   @db.VarChar(20)
+  descricao String?  @db.VarChar(255)
+  criado_em DateTime @default(now()) @db.DateTime(0)
 
   @@map("transacoes")
+}
+
+model auth {
+  userid Int @default(0)
+  zoneid Int @default(0)
+  rid    Int @default(0)
+
+  @@id([userid, zoneid, rid])
+}
+
+model forbid {
+  userid      Int      @default(0)
+  type        Int      @default(0)
+  ctime       DateTime @db.DateTime(0)
+  forbid_time Int      @default(0)
+  reason      Bytes    @db.Blob
+  gmroleid    Int?     @default(0)
+
+  @@id([userid, type])
+}
+
+model infochar {
+  id           Int     @id @default(autoincrement())
+  gender       Int
+  last_convert Int
+  level        Int
+  level2       Int
+  money_points Int
+  name         String? @db.VarChar(255)
+  occupation   Int
+  pvp_deads    Int
+  pvp_kills    Int
+  reputation   Int
+  roleid       Int
+  total_points Int
+  userid       Int
+}
+
+model ipaccount {
+  ID      Int     @id @default(autoincrement())
+  account Int
+  ip      String? @db.VarChar(255)
+  userid  Int
+}
+
+model iplimit {
+  uid        Int     @id @default(0)
+  ipaddr1    Int?    @default(0)
+  ipmask1    String? @default("") @db.VarChar(2)
+  ipaddr2    Int?    @default(0)
+  ipmask2    String? @default("") @db.VarChar(2)
+  ipaddr3    Int?    @default(0)
+  ipmask3    String? @default("") @db.VarChar(2)
+  enable     String? @default("") @db.Char(1)
+  lockstatus String? @default("") @db.Char(1)
+}
+
+model kills {
+  id        Int    @id @default(autoincrement())
+  ano       Int
+  dia       Int
+  hora      Int
+  matou     Int
+  mes       Int
+  min       Int
+  morto     Int
+  seg       Int
+  timestamp BigInt
+}
+
+model point {
+  uid          Int       @default(0)
+  aid          Int       @default(0)
+  time         Int       @default(0)
+  zoneid       Int?      @default(0)
+  zonelocalid  Int?      @default(0)
+  accountstart DateTime? @db.DateTime(0)
+  lastlogin    DateTime? @db.DateTime(0)
+  enddate      DateTime? @db.DateTime(0)
+
+  @@id([uid, aid])
+  @@index([aid, zoneid], map: "IX_point_aidzoneid")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model usecashlog {
+  userid   Int      @default(0)
+  zoneid   Int      @default(0)
+  sn       Int      @default(0)
+  aid      Int      @default(0)
+  point    Int      @default(0)
+  cash     Int      @default(0)
+  status   Int      @default(0)
+  creatime DateTime @db.DateTime(0)
+  fintime  DateTime @db.DateTime(0)
+
+  @@index([creatime], map: "IX_usecashlog_creatime")
+  @@index([userid, zoneid, sn], map: "IX_usecashlog_uzs")
+  @@ignore
+}
+
+model usecashnow {
+  userid   Int      @default(0)
+  zoneid   Int      @default(0)
+  sn       Int      @default(0)
+  aid      Int      @default(0)
+  point    Int      @default(0)
+  cash     Int      @default(0)
+  status   Int      @default(0)
+  creatime DateTime @db.DateTime(0)
+
+  @@id([userid, zoneid, sn])
+  @@index([creatime], map: "IX_usecashnow_creatime")
+  @@index([status], map: "IX_usecashnow_status")
+}
+
+model users {
+  ID           Int       @id @default(0)
+  name         String    @unique(map: "IX_users_name") @default("") @db.VarChar(32)
+  passwd       String    @db.VarChar(64)
+  Prompt       String    @default("") @db.VarChar(32)
+  answer       String    @default("") @db.VarChar(32)
+  truename     String    @default("") @db.VarChar(32)
+  idnumber     String    @default("") @db.VarChar(32)
+  email        String    @default("") @db.VarChar(64)
+  mobilenumber String?   @default("") @db.VarChar(32)
+  province     String?   @default("") @db.VarChar(32)
+  city         String?   @default("") @db.VarChar(32)
+  phonenumber  String?   @default("") @db.VarChar(32)
+  address      String?   @default("") @db.VarChar(64)
+  postalcode   String?   @default("") @db.VarChar(8)
+  gender       Int?      @default(0)
+  birthday     DateTime? @db.DateTime(0)
+  creatime     DateTime  @db.DateTime(0)
+  qq           String?   @default("") @db.VarChar(32)
+  passwd2      String?   @db.VarChar(64)
+  mudev        String    @db.VarChar(32)
+  money        Int       @default(0)
+  mmotop       String    @db.VarChar(32)
+
+  @@index([creatime], map: "IX_users_creatime")
+}
+
+model votingrecords {
+  account String @id @default("0") @db.VarChar(13)
+  ip      String @default("0") @db.VarChar(30)
+  date    Int    @default(0)
+  times   BigInt @default(0) @db.UnsignedBigInt
+}
+
+model votingrecords2 {
+  account String @id @default("0") @db.VarChar(13)
+  ip      String @default("0") @db.VarChar(30)
+  date    Int    @default(0)
+  times   BigInt @default(0) @db.UnsignedBigInt
 }

@@ -53,13 +53,13 @@ export default function PixQRCodeModal({ open, onClose, value, userId, txid, des
       <div style={{ background: '#18181b', padding: 32, borderRadius: 16, minWidth: 340, maxWidth: 420, textAlign: 'center', color: '#fff', position: 'relative', boxShadow: '0 8px 32px #0008' }}>
         <button onClick={onClose} style={{ position: 'absolute', top: 12, right: 12, background: 'none', border: 'none', color: '#fff', fontSize: 28, cursor: 'pointer', fontWeight: 700, lineHeight: 1 }}>×</button>
         <h2 style={{ fontWeight: 800, fontSize: 26, marginBottom: 8, letterSpacing: 0.5 }}>Pagamento via Pix</h2>
-        {qrData?.orderNumber && (
+        {(qrData?.txid || qrData?.orderNumber) && (
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
             background: '#232323', borderRadius: 10, padding: '10px 0 8px 0', marginBottom: 12, border: '1px solid #333',
           }}>
             <div style={{ fontSize: 15, color: '#a3e635', fontWeight: 700, letterSpacing: 0.5 }}>
-              Nº do Pedido: <span style={{ color: '#fff', background: '#222', borderRadius: 6, padding: '2px 8px', marginLeft: 4 }}>{qrData.orderNumber}</span>
+              TX id: <span style={{ color: '#fff', background: '#222', borderRadius: 6, padding: '2px 8px', marginLeft: 4 }}>{qrData.txid || qrData.orderNumber}</span>
             </div>
           </div>
         )}

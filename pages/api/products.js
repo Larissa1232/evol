@@ -6,12 +6,18 @@ export default async function handler(req, res){
     const produtos = await prisma.produtos.findMany({ orderBy: { id: 'asc' } });
     const products = produtos.map(p => ({
       id: p.id,
-      title: p.value || p.description || `Produto ${p.id}`,
+      title: p.description || `Produto ${p.id}`,
       usdt: p.price ? Number(p.price) : 0,
       brl: p.price_brl ? Number(p.price_brl) : 0,
       image: p.image || null,
+      // whether product is available
       ativo: Boolean(p.ativo),
-      // game_item_id and send_count should be present in the DB so we can send the correct item/quantity to the game
+      // message to send to the game (was description)
+      message: p.description || null,
+      // quantity limits
+      min: p.min || 1,
+      max: p.max || 1,
+      // game mapping
       game_item_id: p.game_item_id || null,
       send_count: p.send_count || 1
     }));
