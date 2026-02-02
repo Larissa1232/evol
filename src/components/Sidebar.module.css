@@ -17,27 +17,33 @@
 
 .menu{ display:flex; flex-direction:column; gap:8px; padding-top:8px }
 .menuSection{ font-size:11px; color:rgba(230,238,248,0.45); text-transform:uppercase; padding:8px 6px }
-.menuItem{ display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:12px; color:rgba(230,238,248,0.96); background:transparent; border:none; text-align:left; cursor:pointer; position:relative; transition:background-color .12s ease, transform .12s ease }
+.menuItem{ display:flex; align-items:center; gap:12px; padding:14px 18px; border-radius:14px; color:rgba(230,238,248,0.96); background:transparent; border:none; text-align:left; cursor:pointer; position:relative; transition:background-color .16s ease, transform .12s ease, box-shadow .18s ease }
 .menuItem:hover{ transform:translateX(2px); background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
 .menuItemHover{ transition: all .18s }
-.menuItemActive{ background: linear-gradient(90deg, rgba(30,44,70,0.95), rgba(26,34,58,0.95)); color:white; border-radius:14px; box-shadow: 0 8px 30px rgba(10,14,30,0.6) }
-.menuItemActive::before{ content:''; position:absolute; left:10px; top:8px; bottom:8px; width:6px; background:linear-gradient(180deg,var(--primary-purple),var(--primary-blue)); border-radius:6px }
+.menuItemActive{ background: linear-gradient(90deg, rgba(10,22,48,0.95), rgba(6,14,34,0.95)); color:white; border-radius:18px; box-shadow: 0 14px 44px rgba(6,12,28,0.65), 0 2px 8px rgba(37,99,235,0.04); padding-left:22px }
+.menuItemActive::before{ content:''; position:absolute; left:12px; top:10px; bottom:10px; width:8px; background:linear-gradient(180deg,var(--primary-blue),var(--primary-purple)); border-radius:8px; box-shadow: 0 6px 20px rgba(37,99,235,0.08) }
+
+.menuItemActive .label{ font-weight:800; font-size:15px }
 .hasChildrenWrapper{ display:block }
 
-.menuLink{ display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border-radius:12px; background:transparent; border:none; cursor:pointer; color: rgba(230,238,248,0.92); }
-.menuLink:hover{ background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); transform:translateX(2px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.14); }
+.menuLink{ display:flex; align-items:center; gap:12px; width:100%; padding:12px 14px; border-radius:14px; background: linear-gradient(180deg, rgba(255,255,255,0.005), rgba(255,255,255,0.002)); border:1px solid rgba(255,255,255,0.02); cursor:pointer; color: rgba(230,238,248,0.92); transition: transform .16s ease, box-shadow .18s ease, background .16s ease }
+.menuLink:hover{ background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); transform:translateX(3px); box-shadow: 0 12px 36px rgba(2,6,12,0.55), inset 0 0 0 1px rgba(255,255,255,0.12); }
 
-.icon{ width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center; opacity:0.95; color: rgba(230,238,248,0.65); font-size:14px }
-.caret{ margin-left:auto; transition: transform .18s ease; color: rgba(230,238,248,0.7); font-size:12px }
-.label{ flex:1; color: inherit; font-weight:600 }
+.icon{ width:26px; height:26px; display:inline-flex; align-items:center; justify-content:center; opacity:0.98; color: rgba(230,238,248,0.75); font-size:14px; border-radius:8px; background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(99,102,241,0.03)); box-shadow: 0 6px 18px rgba(37,99,235,0.04) }
+.caret{ margin-left:auto; transition: transform .18s ease; color: rgba(230,238,248,0.65); font-size:12px }
+.label{ flex:1; color: inherit; font-weight:700; letter-spacing:0.2px }
 .caretOpen{ transform:rotate(180deg) }
 .hasChildrenSubmenu{ max-height:0; overflow:hidden; transition:max-height .28s ease; padding-left:12px; margin-left:6px; border-left:1px solid rgba(255,255,255,0.02) }
-.hasChildrenSubmenuOpen{ max-height:400px; padding-top:8px; padding-bottom:8px }
-.submenuItem{ display:block; padding:10px 16px; border-radius:8px; color:rgba(230,238,248,0.92); background:transparent; border:none; width:100%; text-align:left; cursor:pointer; transition: transform .12s ease, background-color .12s ease; font-size:14px }
-.submenuItem:hover{ background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); transform:translateX(3px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
+.hasChildrenSubmenuOpen{ max-height:400px; padding-top:8px; padding-bottom:8px; background: rgba(255,255,255,0.01); border-radius:10px; margin-left:6px; padding-left:10px }
+.submenuItem{ display:block; padding:10px 16px; border-radius:8px; color:rgba(230,238,248,0.92); background:transparent; border:none; width:100%; text-align:left; cursor:pointer; transition: transform .12s ease, background-color .12s ease; font-size:14px; padding-left:14px }
+.submenuItem:hover{ background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); transform:translateX(4px); box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12); }
 .submenuItemActive{ background: linear-gradient(90deg, rgba(107,59,214,0.12), rgba(59,130,246,0.06)); color:white }
 .submenuItem::before{ content:''; display:inline-block; width:6px; height:6px; margin-right:12px; vertical-align:middle; border-radius:6px; background: transparent }
 .submenuItemActive::before{ background: linear-gradient(180deg,var(--primary-purple),var(--primary-blue)) }
+
+/* Account submenu styles */
+.accountHeader{ display:flex; align-items:center; gap:10px; padding:8px 6px; margin-bottom:6px }
+/* account avatar/info removed */
 
 /* Accessible focus styles */
 .menuItem:focus-visible, .menuLink:focus-visible, .submenuItem:focus-visible, .actionBtn:focus-visible{ outline:2px solid rgba(59,130,246,0.18); outline-offset:4px; border-radius:8px }

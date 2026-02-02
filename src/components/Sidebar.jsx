@@ -3,6 +3,7 @@ import styles from './Sidebar.module.css';
 
 export default function Sidebar({onNavigate = ()=>{}}) {
   const [donationOpen, setDonationOpen] = useState(true);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(()=>{
@@ -62,7 +63,24 @@ export default function Sidebar({onNavigate = ()=>{}}) {
           </ul>
         </div>
 
-        <button className={styles.menuItem} onClick={()=>onNavigate('minha-conta')}>Minha conta</button>
+        <div className={styles.hasChildrenWrapper}>
+          <button
+            className={styles.menuLink}
+            onClick={() => setAccountOpen(v => !v)}
+            aria-expanded={accountOpen}
+            aria-controls="submenu-account"
+            role="menuitem"
+          >
+            <span className={styles.icon}>👤</span>
+            <span className={styles.label}>Minha Conta</span>
+            <span className={`${styles.caret} ${accountOpen ? styles.caretOpen : ''}`}>▾</span>
+          </button>
+
+          <ul id="submenu-account" className={`${styles.hasChildrenSubmenu} ${accountOpen ? styles.hasChildrenSubmenuOpen : ''}`} role="menu">
+            <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('profile')}>Editar perfil</button></li>
+            <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('change-password')}>Alterar senha</button></li>
+          </ul>
+        </div>
       </nav>
     </aside>
   );

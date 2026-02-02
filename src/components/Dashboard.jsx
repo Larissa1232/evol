@@ -47,10 +47,6 @@ export default function Dashboard(){
 
   return (
     <div className={styles.dashboardRoot}>
-      <div className={styles.dashboardBanner}>
-        <div className={styles.dashboardBannerLogo}>OMEGA</div>
-      </div>
-
       <div style={{padding:'10px 6px', borderRadius:10, marginBottom:6}}>
         <div style={{fontSize:20, fontWeight:800}}>Olá! Bem-vindo ao painel do jogador.</div>
         <div style={{color:'var(--muted)', marginTop:6}}>Gerencie seus produtos, pagamentos e personagens aqui.</div>
