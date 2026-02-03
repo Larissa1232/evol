@@ -13,6 +13,41 @@ export default async function handler(req, res) {
     // PayPal webhook payload usually contains `resource` with details
     const resource = payload.resource || payload;
 
+    // dynamic import PayPal helper early so we can verify webhook signature
+    let paypal;
+    try { paypal = (await import('../../../lib/paypal.js')); } catch(e) { paypal = require('../../../lib/paypal'); }
+    const verifyWebhook = paypal.verifyWebhookSignature || (paypal.default && paypal.default.verifyWebhookSignature);
+
+    // Verify webhook signature if verifier and webhook id are available
+    const webhookId = process.env.PAYPAL_WEBHOOK_ID || process.env.PAYPAL_WEBHOOK_ID;
+    if (verifyWebhook && webhookId) {
+      const transmissionId = req.headers['paypal-transmission-id'] || req.headers['paypal-transmissionid'] || null;
+      const transmissionTime = req.headers['paypal-transmission-time'] || null;
+      const certUrl = req.headers['paypal-cert-url'] || null;
+      const authAlgo = req.headers['paypal-auth-algo'] || null;
+      const transmissionSig = req.headers['paypal-transmission-sig'] || req.headers['paypal-transmission_sig'] || null;
+      try {
+        const ok = await verifyWebhook({
+          transmission_id: transmissionId,
+          transmission_time: transmissionTime,
+          cert_url: certUrl,
+          auth_algo: authAlgo,
+          transmission_sig: transmissionSig,
+          webhook_id: webhookId,
+          webhook_event: payload
+        });
+        if (!ok) {
+          console.error('[paypal webhook] invalid_signature');
+          return res.status(400).json({ error: 'invalid_webhook_signature' });
+        }
+      } catch (e) {
+        console.error('[paypal webhook] verification_error', e);
+        return res.status(400).json({ error: 'webhook_verification_failed' });
+      }
+    } else {
+      console.warn('[paypal webhook] skipping verification: PAYPAL_WEBHOOK_ID not set or verifier missing');
+    }
+
     // Try various places for our reference/custom id
     let correlationID = resource?.purchase_units?.[0]?.custom_id || resource?.custom_id || resource?.invoice_id || resource?.order_id || resource?.id || resource?.supplementary_data?.related_ids?.order_id || null;
 
