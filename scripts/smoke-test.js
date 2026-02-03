@@ -1,12 +1,15 @@
+// load .env for standalone scripts
+try{ require('../lib/loadEnv'); }catch(e){}
 const axios = require('axios');
 
-const BASE = 'http://localhost:3000';
+const BASE = process.env.BASE_URL || 'http://localhost:3000';
 
 async function run(){
   const endpoints = [
     { method: 'get', path: '/api/health' },
     { method: 'get', path: '/api/products' },
     { method: 'get', path: '/api/transacoes' },
+    // UI changes: payment cards show only icons now
     { method: 'post', path: '/api/carrinho', data: { nome: 'Teste', items: [] } },
     { method: 'get', path: '/api/game?action=is_online' }
   ];

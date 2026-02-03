@@ -1,3 +1,5 @@
+// load .env for standalone scripts
+try{ require('../lib/loadEnv'); }catch(e){}
 const { PrismaClient } = require('@prisma/client');
 
 (async ()=>{

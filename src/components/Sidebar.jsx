@@ -4,6 +4,7 @@ import styles from './Sidebar.module.css';
 export default function Sidebar({onNavigate = ()=>{}}) {
   const [donationOpen, setDonationOpen] = useState(true);
   const [accountOpen, setAccountOpen] = useState(false);
+  const [votesOpen, setVotesOpen] = useState(false);
   const [user, setUser] = useState(null);
 
   useEffect(()=>{
@@ -60,6 +61,25 @@ export default function Sidebar({onNavigate = ()=>{}}) {
           <ul id="submenu-donations" className={`${styles.hasChildrenSubmenu} ${donationOpen ? styles.hasChildrenSubmenuOpen : ''}`} role="menu">
             <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('donate')}>Fazer uma doação</button></li>
             <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('transacoes')}>Minhas doações</button></li>
+          </ul>
+        </div>
+
+        <div className={styles.hasChildrenWrapper}>
+          <button
+            className={styles.menuLink}
+            onClick={() => setVotesOpen(v => !v)}
+            aria-expanded={votesOpen}
+            aria-controls="submenu-votes"
+            role="menuitem"
+          >
+            <span className={styles.icon}>🗳️</span>
+            <span className={styles.label}>Votos</span>
+            <span className={`${styles.caret} ${votesOpen ? styles.caretOpen : ''}`}>▾</span>
+          </button>
+
+          <ul id="submenu-votes" className={`${styles.hasChildrenSubmenu} ${votesOpen ? styles.hasChildrenSubmenuOpen : ''}`} role="menu">
+            <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('votos-ranking')}>Ranking</button></li>
+            <li><button className={styles.submenuItem} role="menuitem" onClick={() => onNavigate('votos-recompensa')}>Recompensa de Voto</button></li>
           </ul>
         </div>
 

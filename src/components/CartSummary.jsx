@@ -2,10 +2,12 @@ import React from 'react';
 import PixQRCodeModal from './PixQRCodeModal';
 import styles from './CartSummary.module.css';
 
+let PRODUCTS_CACHE = null;
+
 export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onClear = ()=>{}, onOpenProducts = ()=>{}}){
-  const [method, setMethod] = React.useState('pix');
+  const [method, setMethod] = React.useState('mercadopago');
   const [chars, setChars] = React.useState([]);
-  const [charsLoading, setCharsLoading] = React.useState(false);
+  const [charsLoading, setCharsLoading] = React.useState(true);
   const [charsError, setCharsError] = React.useState(null);
   const [rawCharsResponse, setRawCharsResponse] = React.useState(null);
   const [showRawCharsResponse, setShowRawCharsResponse] = React.useState(false);
@@ -13,6 +15,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
   const [selectedCharName, setSelectedCharName] = React.useState('');
   const [userId, setUserId] = React.useState(null);
   const items = Object.values(cart);
+  const [productImages, setProductImages] = React.useState({});
   const subtotalUSDT = items.reduce((s,it)=>s + (Number(it.usdt||0) * it.qty), 0);
   const subtotalBRL = items.reduce((s,it)=>s + (Number(it.brl||0) * it.qty), 0);
   const fee = method === 'paypal' ? subtotalBRL * 0.06 : 0; // simulate paypal fee
@@ -200,6 +203,31 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
     return ()=>{ mounted = false };
   },[]);
 
+  // load product images for cart items that lack an image
+  React.useEffect(()=>{
+    let mounted = true;
+    async function loadImages(){
+      try{
+        // use module-level cache to avoid repeated network calls
+        if(PRODUCTS_CACHE){ if(mounted) setProductImages(PRODUCTS_CACHE); return; }
+        const res = await fetch('/api/products');
+        if(!res.ok) return;
+        const data = await res.json();
+        const map = {};
+        for(const p of data || []){
+          if(p && p.image){
+            if(p.id != null) map[String(p.id)] = p.image;
+            if(p.game_item_id != null) map[String(p.game_item_id)] = p.image;
+          }
+        }
+        PRODUCTS_CACHE = map;
+        if(mounted) setProductImages(map);
+      }catch(e){ console.warn('loadImages error', e); }
+    }
+    loadImages();
+    return ()=>{ mounted = false };
+  },[]);
+
   async function pay(){
     if(items.length === 0){
       window.alert('Seu carrinho está vazio.');
@@ -218,7 +246,7 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: userId || 'usuario-demo',
+            user_id: String(userId || 'usuario-demo'),
             produtos: items,
             total_usd: subtotalUSDT,
             total_brl: totalBRL,
@@ -252,6 +280,107 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         setSaving(false);
       }
       return;
+    }
+
+    if (method === 'paypal') {
+      setSaving(true);
+      try {
+        // Salva o carrinho antes de criar a ordem PayPal
+        const res = await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: String(userId || 'usuario-demo'),
+            produtos: items,
+            total_usd: subtotalUSDT,
+            total_brl: totalBRL,
+            personagem: selectedCharName || null
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const cartReference = data.id;
+
+        // Create PayPal order (amount in cents)
+        const amountCents = Math.round(Number(totalBRL) * 100);
+        const p = await fetch('/api/paypal/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: amountCents, reference: cartReference, description: `Compra ${selectedCharName || ''}` })
+        });
+        const txt = await p.text().catch(()=>null);
+        let pdata = null;
+        try { pdata = txt ? JSON.parse(txt) : null; } catch(e){ throw new Error('Invalid response from server: ' + txt); }
+        if (!p.ok) {
+          const msg = (pdata && (pdata.error || pdata.message)) ? (pdata.error || pdata.message) : JSON.stringify(pdata);
+          throw new Error(msg || 'PayPal create failed');
+        }
+        const d = pdata?.data || pdata || {};
+        const approveUrl = d.approveUrl || pdata.approveUrl || (pdata.raw && pdata.raw.links && pdata.raw.links.find(l=>l.rel==='approve')?.href) || (pdata._raw && pdata._raw.links && pdata._raw.links.find(l=>l.rel==='approve')?.href) || null;
+        if (!approveUrl) {
+          throw new Error('PayPal approve URL not returned');
+        }
+        // redirect user to PayPal approval
+        window.location.href = approveUrl;
+        return;
+      } catch (err) {
+        window.alert('Erro no PayPal: ' + (err.message || err));
+      } finally {
+        setSaving(false);
+      }
+    }
+    if (method === 'mercadopago') {
+      setSaving(true);
+      try {
+        // Salva o carrinho antes de criar a preferência Mercado Pago
+        const res = await fetch('/api/carrinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: String(userId || 'usuario-demo'),
+            produtos: items,
+            total_usd: subtotalUSDT,
+            total_brl: totalBRL,
+            personagem: selectedCharName || null
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        const cartReference = data.id;
+
+        const amountCents = Math.round(Number(totalBRL) * 100);
+        const body = {
+          amount: amountCents,
+          reference: cartReference,
+          description: `Compra ${selectedCharName || ''}`,
+          user_id: userId || null,
+          product_id: items[0] ? (items[0].game_item_id || items[0].itemId || items[0].id) : null,
+          char: selectedCharId,
+          item: items[0] ? (items[0].game_item_id || items[0].itemId || items[0].id) : null
+        };
+
+        const p = await fetch('/api/mercadopago/create', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const txt = await p.text().catch(()=>null);
+        let pdata = null;
+        try { pdata = txt ? JSON.parse(txt) : null; } catch(e){ throw new Error('Invalid response from server: ' + txt); }
+        if (!p.ok) {
+          const msg = (pdata && (pdata.error || pdata.message)) ? (pdata.error || pdata.message) : JSON.stringify(pdata);
+          throw new Error(msg || 'Mercado Pago create failed');
+        }
+        const initPoint = pdata?.init_point || pdata?.sandbox_init_point || (pdata.raw && (pdata.raw.init_point || pdata.raw.sandbox_init_point)) || null;
+        if (!initPoint) throw new Error('Mercado Pago init_point not returned');
+        // redirect user to Mercado Pago checkout
+        window.location.href = initPoint;
+        return;
+      } catch (err) {
+        window.alert('Erro no Mercado Pago: ' + (err.message || err));
+      } finally {
+        setSaving(false);
+      }
     }
     window.alert(`Simulação de pagamento via ${method.toUpperCase()}\nTotal: R$ ${totalBRL.toFixed(2)}`);
   }
@@ -309,14 +438,29 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
         <div className={styles.cartGrid}>
           <div className={styles.cartItemsCol}>
             <ul className={styles.cartItems}>
-              {items.map(it=> (
-                  <li key={it.id} className={`${styles.cartItem} cart-item-anim`}>
+              {items.map(it=> {
+                  const imageSrc = it.image || productImages[String(it.id)] || productImages[String(it.game_item_id)] || productImages[String(it.itemId)];
+                  return (
+                  <li key={it.id || (it.game_item_id||it.itemId)} className={`${styles.cartItem} cart-item-anim`}>
                     <div className="cart-col cart-name">
-                      <div className={styles.cartItemTitle}>
-                        <span className="cart-item-icon" title="Produto">🏺</span>
-                        {it.title}
-                        <span className={styles.cartBadge}>x{it.qty}</span>
-                      </div>
+                          <div className={styles.cartItemTitle}>
+                            {imageSrc ? (
+                              <img
+                                src={imageSrc}
+                                alt={it.title}
+                                className="cart-item-icon"
+                                loading="lazy"
+                                width={36}
+                                height={36}
+                                style={{ width:36, height:36, objectFit:'cover' }}
+                                onError={(e)=>{ e.currentTarget.style.display='none'; }}
+                              />
+                            ) : (
+                              <span className="cart-item-icon" title="Produto">🏺</span>
+                            )}
+                            {it.title}
+                            <span className={styles.cartBadge}>x{it.qty}</span>
+                          </div>
                       <div className="cart-item-price"><span className="cs-usdt">USDT {(it.usdt*it.qty).toFixed(2)}</span> • <span className="cs-brl">R$ {(it.brl*it.qty).toFixed(2)}</span></div>
                     </div>
                     <div className="cart-col cart-qty-display">{it.qty}</div>
@@ -325,7 +469,8 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
                       <button className="cart-qty" onClick={()=>onChangeQuantity(it.id, it.qty+1, it)}>+</button>
                     </div>
                   </li>
-                ))}
+                )
+              })}
             </ul>
             <div className={styles.cartItemsSeparator}></div>
           </div>
@@ -342,17 +487,13 @@ export default function CartSummary({cart = {}, onChangeQuantity = ()=>{}, onCle
 
             <div className="payment-section">
               <div className={styles.paymentMethods}>
-                <div className={`${styles.methodCard} ${method==='pix'? styles.methodSelected : ''} ${method==='pix' && selectedCharId ? styles.methodHighlighted : ''}`} onClick={()=>setMethod('pix')}>
-                  <div className={styles.methodName}>PIX</div>
-                  <span className="method-tooltip">Pagamento instantâneo</span>
+                {/* PIX removed — using Mercado Pago as default */}
+                {/* Binance card removed per UX request */}
+                <div role="button" tabIndex={0} className={`${styles.methodCard} ${method==='paypal'? styles.methodSelected : ''}`} onClick={()=>setMethod('paypal')} aria-label="PayPal — Cartão ou saldo PayPal">
+                  <img src="/paypal.png" alt="PayPal" className={styles.methodIcon} />
                 </div>
-                <div className={`${styles.methodCard} ${method==='binance'? styles.methodSelected : ''}`} onClick={()=>setMethod('binance')}>
-                  <div className={styles.methodName}>Binance</div>
-                  <span className="method-tooltip">Cripto via Binance</span>
-                </div>
-                <div className={`${styles.methodCard} ${method==='paypal'? styles.methodSelected : ''}`} onClick={()=>setMethod('paypal')}>
-                  <div className={styles.methodName}>PayPal</div>
-                  <span className="method-tooltip">Cartão ou saldo PayPal</span>
+                <div role="button" tabIndex={0} className={`${styles.methodCard} ${styles.mpCard} ${method==='mercadopago'? styles.methodSelected : ''}`} onClick={()=>setMethod('mercadopago')} aria-label="Mercado Pago — Cartão, Pix ou outros métodos">
+                  <img src="/mp.png" alt="Mercado Pago" className={styles.mpLogo} />
                 </div>
               </div>
             </div>

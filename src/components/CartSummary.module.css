@@ -16,11 +16,38 @@
 .selectedBadge{ display:inline-block; background:linear-gradient(180deg,#061018,#07121a); color:#93c5fd; padding:6px 12px; border-radius:999px; font-weight:700; border:1px solid rgba(59,130,246,0.08); box-shadow: 0 10px 26px rgba(0,0,0,0.6) }
 
 .paymentMethods{ display:flex; flex-direction:column; gap:10px; margin-top:8px }
-.methodCard{ padding:12px 16px; border-radius:calc(var(--radius-sm)); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); cursor:pointer; transition: transform .14s var(--anim-ease), box-shadow .14s var(--anim-ease), border-color .14s var(--anim-ease); color:#dbe9fb; display:flex; align-items:center; justify-content:center }
+.methodCard{ padding:10px 12px; border-radius:calc(var(--radius-sm)); background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005)); border:1px solid rgba(255,255,255,0.02); cursor:pointer; transition: transform .14s var(--anim-ease), box-shadow .14s var(--anim-ease), border-color .14s var(--anim-ease); color:#dbe9fb; display:flex; align-items:center; justify-content:center; min-height:64px }
 .methodCard:hover{ transform: translateY(-4px); box-shadow: 0 14px 40px rgba(0,0,0,0.7) }
 .methodSelected{ border-color:rgba(59,130,246,0.9); box-shadow:0 20px 56px rgba(59,130,246,0.06); transform: translateY(-6px) }
 .methodHighlighted{ box-shadow:0 22px 64px rgba(59,130,246,0.08); border-color:rgba(59,130,246,0.9); transform: translateY(-6px) }
 .methodName{ font-weight:900; letter-spacing:0.6px }
+
+/* Mercado Pago custom card */
+.mpCard{ padding:6px 8px; display:flex; align-items:center; justify-content:center; gap:8px }
+.mpLeft{ display:flex; align-items:center; justify-content:center }
+.mpLeft .mpTop{ font-size:14px; font-weight:900; letter-spacing:0.6px }
+.mpLeft .mpBottom{ font-size:14px; font-weight:700; margin-top:2px }
+.mpLogo{ width:auto; height:100%; max-height:48px; object-fit:contain; display:block }
+
+.methodIcon{ width:auto; height:100%; max-height:48px; object-fit:contain; display:block }
+
+/* ensure images inside method cards fill available vertical space and stay centered */
+.methodCard img{ display:block; height:100%; max-height:48px; width:auto }
+
+/* Selected card stronger outline */
+.methodCard.methodSelected, .methodCard.methodSelected.mpCard {
+  border-color: rgba(59,130,246,0.95);
+  box-shadow: 0 28px 72px rgba(59,130,246,0.12);
+}
+.mpRight{ display:flex; flex-direction:column; align-items:flex-start }
+.mpTitle{ font-weight:900; color:#f8fafc }
+.mpDesc{ font-size:13px; color:#cbd5e1; margin-top:4px }
+
+.methodCard.mercadopago, .methodCard.mpCard{ border-color: rgba(11,61,184,0.9); }
+
+/* Disabled/Inactive payment method style */
+.methodCardDisabled{ opacity:0.56; cursor:not-allowed; pointer-events:none; filter:grayscale(0.08) contrast(0.95); transform:none !important; box-shadow:none !important; }
+.methodCardDisabled:hover{ transform:none !important; box-shadow:none !important; }
 
 .cartActions{ display:flex; gap:12px; align-items:center; margin-top:14px }
 .btnPrimary{ background: linear-gradient(180deg,#0b3db8,#082b82); color:#ffffff; padding:14px 22px; border-radius:14px; border:1px solid rgba(255,255,255,0.04); font-weight:800; font-size:16px; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; letter-spacing:0.6px; display:inline-flex; align-items:center; justify-content:center; min-height:48px; box-shadow: 0 18px 44px rgba(11,61,184,0.12); cursor:pointer; transition: transform .16s var(--anim-ease), box-shadow .16s var(--anim-ease), filter .12s ease, opacity .12s ease; flex:1; text-align:center }
@@ -49,7 +76,21 @@
 /* Layout children (these are plain class names rendered inside the module-scoped .cartItem) */
 .cartItem :global(.cart-col){ display:flex; align-items:center }
 .cartItem :global(.cart-col.cart-name){ flex:1; flex-direction:column; gap:6px }
-.cartItem :global(.cart-col.cart-name) .cart-item-icon{ margin-bottom:6px }
+.cartItem :global(.cart-col.cart-name) .cart-item-icon{ margin-bottom:6px; display:inline-block; vertical-align:middle }
+.cartItem :global(.cart-col.cart-name) .cart-item-icon img,
+.cartItem :global(.cart-col.cart-name) img.cart-item-icon,
+.cartItem :global(.cart-col.cart-name) .cart-item-icon {
+  width:36px;
+  height:36px;
+  object-fit:cover;
+  border-radius:8px;
+  margin-right:12px;
+  display:inline-block;
+  vertical-align:middle;
+}
+
+/* ensure img elements with class cart-item-icon are strictly sized */
+.cartItem img.cart-item-icon{ width:36px !important; height:36px !important; max-width:36px !important; max-height:36px !important; object-fit:cover !important }
 .cartItem :global(.cart-col.cart-qty-display){ width:72px; justify-content:center; text-align:center; font-weight:800; color:var(--muted); font-size:20px }
 .cartItem :global(.cart-col.cart-controls){ width:140px; justify-content:flex-end }
 

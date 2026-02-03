@@ -1,3 +1,5 @@
+// load environment first (supports running via `node scripts/*`)
+import '../lib/loadEnv.js';
 import prisma from '../lib/prisma.js';
 
 (async ()=>{

@@ -36,31 +36,25 @@ const TransactionsHistory = () => {
         <table className="chars-table" style={{minWidth: 800}}>
           <thead>
             <tr>
-              <th>ID</th>
               <th>Usuário</th>
               <th>Valor</th>
               <th>Tipo</th>
-              <th>Status</th>
-              <th>Descrição</th>
               <th>Data</th>
             </tr>
           </thead>
           <tbody>
             {transacoes.length === 0 ? (
               <tr>
-                <td colSpan={7} style={{textAlign: 'center', color: '#9ca3af', padding: 32}}>
+                <td colSpan={4} style={{textAlign: 'center', color: '#9ca3af', padding: 32}}>
                   Nenhuma doação encontrada.
                 </td>
               </tr>
             ) : (
               transacoes.map(tx => (
                 <tr key={tx.id}>
-                  <td>{tx.id}</td>
                   <td>{tx.user_id}</td>
                   <td style={{color: '#10b981', fontWeight: 700}}>R$ {Number(tx.valor).toFixed(2)}</td>
                   <td>{tx.tipo}</td>
-                  <td>{tx.status}</td>
-                  <td>{tx.descricao}</td>
                   <td>{new Date(tx.criado_em).toLocaleString()}</td>
                 </tr>
               ))

@@ -6,13 +6,24 @@ import CharactersTable from './components/CharactersTable';
 import ProductsGrid from './components/ProductsGrid';
 import CartSummary from './components/CartSummary';
 import TransactionsHistory from './components/TransactionsHistory';
+import Votes from './components/Votes';
 
 function App(){
 	const [page, setPage] = React.useState('dashboard');
+
+	// On the client, restore last page from localStorage after hydration to avoid
+	// server/client markup mismatch (prevents hydration errors).
+	React.useEffect(() => {
+		try {
+			const saved = window.localStorage.getItem('app_page');
+			if (saved) setPage(saved);
+		} catch (e) {}
+	}, []);
 	const [cart, setCart] = React.useState({});
 
 	function navigate(p){
 		setPage(p);
+		try { if (typeof window !== 'undefined') window.localStorage.setItem('app_page', p); } catch(e){}
 		window.scrollTo({top:0,behavior:'smooth'});
 	}
 
@@ -54,7 +65,7 @@ function App(){
 									onChangeQuantity={setQuantity}
 									onClear={clearCart}
 									onOpenProducts={(char)=>{
-										setPage('donate');
+										navigate('donate');
 										setTimeout(()=>{
 											const el = document.getElementById('products-grid');
 											if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
@@ -64,7 +75,15 @@ function App(){
 							</>
 						)}
 					{page === 'transacoes' && (
-						<TransactionsHistory />
+					<TransactionsHistory />
+					)}
+
+					{page === 'votos-ranking' && (
+						<Votes view="ranking" />
+					)}
+
+					{page === 'votos-recompensa' && (
+						<Votes view="reward" />
 					)}
 					</div>
 				</div>
