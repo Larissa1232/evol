@@ -1,4 +1,4 @@
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
 import fs from 'fs';
 import path from 'path';
 import axios from 'axios';
@@ -83,6 +83,29 @@ export default async function handler(req, res) {
 
     let body = null;
     try { body = rawText ? JSON.parse(rawText) : req.body || null; } catch { body = req.body || null; }
+
+    // If a webhook secret is configured, verify signature header if present
+    try {
+      const secretHeader = String(process.env.MERCADOPAGO_WEBHOOK_SECRET || '').trim();
+      const headerSig = req.headers['x-meli-signature'] || req.headers['x-mp-signature'] || req.headers['x-hub-signature'] || req.headers['x-mercadopago-signature'] || null;
+      if (secretHeader && headerSig && rawText) {
+        try {
+          const expected = createHmac('sha256', secretHeader).update(rawText).digest('hex');
+          const a = Buffer.from(String(expected));
+          const b = Buffer.from(String(headerSig));
+          if (a.length !== b.length || !timingSafeEqual(a, b)) {
+            console.error('[mercadopago webhook] header_signature_mismatch');
+            return res.status(400).json({ error: 'invalid_signature' });
+          }
+        } catch (e) {
+          console.error('[mercadopago webhook] header_signature_verification_error', e);
+          return res.status(400).json({ error: 'signature_verification_failed' });
+        }
+      }
+    } catch (e) {
+      // don't break processing if signature check code errors unexpectedly
+      console.error('[mercadopago webhook] signature_check_internal_error', e);
+    }
 
     const paymentId = body?.data?.id || body?.id || body?.payment_id || req.query?.id || req.query?.payment_id || null;
     if (!paymentId) return res.status(400).json({ error: 'missing_payment_id' });

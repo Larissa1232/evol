@@ -1,4 +1,16 @@
 import prisma from '../../../lib/prisma.js';
+import { createHmac, timingSafeEqual } from 'crypto';
+
+// helper to read raw body from Next.js pages/api request
+function readRawBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.setEncoding('utf8');
+    req.on('data', chunk => data += chunk);
+    req.on('end', () => resolve(data));
+    req.on('error', err => reject(err));
+  });
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -7,8 +19,33 @@ export default async function handler(req, res) {
   }
 
   try {
-    const body = req.body;
+    const rawText = await readRawBody(req).catch(() => null);
+    const body = rawText ? JSON.parse(rawText) : req.body || {};
     const payload = body && Object.keys(body).length ? body : {};
+
+    // If a PIX webhook secret is configured, verify HMAC header
+    try {
+      const pixSecret = String(process.env.PIX_WEBHOOK_SECRET || '').trim();
+      const headerSig = req.headers['x-signature'] || req.headers['x-pix-signature'] || null;
+      if (pixSecret) {
+        if (!headerSig || !rawText) {
+          console.error('[pix webhook] missing_signature_or_raw_body');
+          return res.status(400).json({ error: 'missing_signature' });
+        }
+        const expected = createHmac('sha256', pixSecret).update(rawText).digest('hex');
+        const a = Buffer.from(String(expected));
+        const b = Buffer.from(String(headerSig));
+        if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+          console.error('[pix webhook] invalid_signature');
+          return res.status(400).json({ error: 'invalid_signature' });
+        }
+      } else {
+        console.warn('[pix webhook] PIX_WEBHOOK_SECRET not set; skipping signature verification');
+      }
+    } catch (e) {
+      console.error('[pix webhook] signature_verification_error', e);
+      return res.status(400).json({ error: 'signature_verification_failed' });
+    }
 
     // Openpix typically posts a `charge` object or the charge as the body
     const charge = payload.charge || payload;
