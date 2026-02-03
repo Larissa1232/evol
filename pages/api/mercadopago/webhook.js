@@ -90,14 +90,16 @@ export default async function handler(req, res) {
     // If webhook contains our internal order identifier (ORD-...), resolve locally
     if (String(paymentId).startsWith('ORD-')) {
       try {
-        // try to find by order_number or txid
-        const rows = await prisma.$queryRawUnsafe('SELECT total_brl FROM carrinho WHERE (order_number = ? OR txid = ?) LIMIT 1', String(paymentId), String(paymentId));
-        const row = rows && rows[0];
-        if (!row) {
+        // try to find by order_number or txid (use prisma parameterized findFirst)
+        const cartRow = await prisma.carrinho.findFirst({
+          where: { OR: [{ order_number: String(paymentId) }, { txid: String(paymentId) }] },
+          select: { total_brl: true }
+        });
+        if (!cartRow) {
           console.warn('[mercadopago webhook] ord_not_found_in_db', { paymentId });
           return res.json({ ok: true });
         }
-        const expectedBRL = Number(row.total_brl);
+        const expectedBRL = Number(cartRow.total_brl);
         if (!Number.isFinite(expectedBRL) || expectedBRL <= 0) {
           console.error('[mercadopago webhook] invalid_expected_total_for_ord', { paymentId, expectedBRL });
           return res.json({ ok: true });
